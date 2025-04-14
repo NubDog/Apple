@@ -19,8 +19,9 @@ class Slider extends Model
         'subtitle',
         'image',
         'link',
-        'order',
-        'status'
+        'link_text',
+        'status',
+        'order'
     ];
 
     /**

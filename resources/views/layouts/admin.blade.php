@@ -116,52 +116,6 @@
             color: var(--primary);
         }
         
-        .upgrade-pro {
-            background-color: rgba(114, 98, 253, 0.1);
-            border-radius: var(--card-border-radius);
-            padding: 20px;
-            margin-top: auto;
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .upgrade-pro .icon {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 15px;
-        }
-        
-        .upgrade-pro .text {
-            font-weight: 500;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        
-        .upgrade-pro .sub-text {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-        
-        .upgrade-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 8px 20px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .upgrade-btn:hover {
-            opacity: 0.9;
-        }
-        
         .main-content {
             flex: 1;
             margin-left: var(--sidebar-width);
@@ -601,10 +555,14 @@
                 </a>
             </div>
             
-            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="menu-item">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Logout</span>
-            </a>
+            <ul class="menu logout-container">
+                <li>
+                    <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="menu-item">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
             
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
