@@ -93,11 +93,23 @@
                     <tr>
                         <td>
                             <div class="product-image">
-                                @if($product->images && count(json_decode($product->images)) > 0)
-                                <img src="{{ asset('storage/' . json_decode($product->images)[0]) }}" alt="{{ $product->name }}">
-                                @else
-                                <div class="no-image">No Image</div>
-                                @endif
+                            @php
+                                $hasImage = false;
+                                if($product->image) {
+                                    echo '<img src="'.asset('storage/'.$product->image).'" alt="'.$product->name.'">';
+                                    $hasImage = true;
+                                } elseif($product->images) {
+                                    $additionalImages = json_decode($product->images, true);
+                                    if(is_array($additionalImages) && count($additionalImages) > 0) {
+                                        echo '<img src="'.asset('storage/'.$additionalImages[0]).'" alt="'.$product->name.'">';
+                                        $hasImage = true;
+                                    }
+                                }
+                                
+                                if(!$hasImage) {
+                                    echo '<div class="no-image">No Image</div>';
+                                }
+                            @endphp
                             </div>
                         </td>
                         <td>
