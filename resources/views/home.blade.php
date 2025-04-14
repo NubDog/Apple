@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream Cars - Trang chủ</title>
+    <title>Shark Car - Trang chủ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -46,34 +46,96 @@
         
         .hero-slider {
             position: relative;
+            height: 70vh;
             overflow: hidden;
-            height: 500px;
         }
         
-        .hero-slider img {
+        .slider-container {
             width: 100%;
-            height: 500px;
+            height: 100%;
+            position: relative;
+        }
+        
+        .slider-wrapper {
+            height: 100%;
+            transition: transform 0.5s ease;
+        }
+        
+        .slide {
+            height: 100%;
+            display: none;
+            position: absolute;
+            width: 100%;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        .slide img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
         }
         
-        .hero-content {
+        .slide-content {
             position: absolute;
             top: 50%;
             left: 50px;
             transform: translateY(-50%);
-            max-width: 500px;
             color: white;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+            max-width: 600px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
         }
         
-        .hero-content h1 {
-            font-size: 44px;
-            font-weight: 800;
+        .slide-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
         }
         
-        .hero-content p {
-            font-size: 20px;
-            margin-bottom: 30px;
+        .slide-content p {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+        
+        .slider-nav:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .slider-nav.prev {
+            left: 20px;
+        }
+        
+        .slider-nav.next {
+            right: 20px;
+        }
+        
+        .slider-arrow {
+            font-style: normal;
+            font-size: 16px;
+            line-height: 1;
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
         }
         
         .section-title {
@@ -391,7 +453,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="/">Dream Cars</a>
+            <a class="navbar-brand" href="/">Shark Car</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -687,7 +749,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 mb-4">
-                    <h5>Dream Cars</h5>
+                    <h5>Shark Car</h5>
                     <p>Chúng tôi cung cấp những mẫu xe tốt nhất với giá cả cạnh tranh và dịch vụ chăm sóc khách hàng tuyệt vời.</p>
                     <div class="social-icons">
                         <a href="#"><i class="fab fa-facebook"></i></a>
@@ -718,7 +780,7 @@
                     <ul class="list-unstyled">
                         <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> 123 Đường Xe, Quận 1, TP.HCM</li>
                         <li class="mb-2"><i class="fas fa-phone me-2"></i> (84) 28 1234 5678</li>
-                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> info@dreamcars.com</li>
+                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> info@sharkcar.com</li>
                         <li class="mb-2"><i class="fas fa-clock me-2"></i> Thứ 2 - Thứ 7: 8:00 - 18:00</li>
                     </ul>
                 </div>
@@ -726,10 +788,10 @@
             <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start">
-                    <p class="mb-0">&copy; 2023 Dream Cars. Tất cả quyền được bảo lưu.</p>
+                    <p class="mb-0">&copy; 2023 Shark Car. Tất cả quyền được bảo lưu.</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <p class="mb-0">Thiết kế bởi Dream Cars Team</p>
+                    <p class="mb-0">Thiết kế bởi Shark Car Team</p>
                 </div>
             </div>
         </div>

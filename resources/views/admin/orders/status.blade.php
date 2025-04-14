@@ -313,7 +313,7 @@
     }
     
     .status-icon {
-        font-size: 32px;
+        font-size: 24px;
         margin-right: 20px;
     }
     

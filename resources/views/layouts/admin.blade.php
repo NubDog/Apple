@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }} - Admin</title>
+    <title>{{ config('app.name', 'Shark Car') }} - Admin</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -103,7 +103,12 @@
         
         .menu-item i {
             margin-right: 10px;
-            font-size: 18px;
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .menu-item.active {
@@ -156,7 +161,7 @@
         }
         
         .user-info .notifications i {
-            font-size: 20px;
+            font-size: 16px;
             cursor: pointer;
         }
         
@@ -493,6 +498,105 @@
                 grid-template-columns: 1fr;
             }
         }
+        
+        /* Fix for oversized icons */
+        .bi {
+            font-size: 1rem;
+            width: 1em;
+            height: 1em;
+            display: inline-block;
+            vertical-align: -0.125em;
+        }
+        
+        /* Specific sizes for action buttons */
+        .btn-action .bi {
+            font-size: 0.875rem;
+        }
+        
+        /* Status icon sizing */
+        .status-icon .bi {
+            font-size: 1.2rem;
+            width: 1.2em;
+            height: 1.2em;
+            display: inline-block;
+        }
+        
+        /* Normal icon sizing in buttons */
+        .btn .bi {
+            font-size: 0.875rem;
+        }
+        
+        /* Ensure all icons have proper constraints */
+        i.bi {
+            line-height: 1;
+            display: inline-block;
+        }
+        
+        /* Fix for oversized SVG arrows */
+        svg, path {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 40px;
+            height: 40px;
+            opacity: 0.8;
+        }
+        
+        /* Navigation arrows */
+        .nav-arrow svg,
+        .nav-arrow path,
+        .pagination svg,
+        .pagination path {
+            width: 20px !important;
+            height: 20px !important;
+            max-width: 20px !important;
+            max-height: 20px !important;
+        }
+        
+        /* Laravel pagination arrow constraints */
+        .pagination svg {
+            width: 20px !important;
+            height: 20px !important;
+            max-width: 20px !important;
+            max-height: 20px !important;
+            overflow: visible;
+        }
+        
+        /* Enforce size on all SVG arrows */
+        svg[width="24"] {
+            width: 20px !important;
+            height: 20px !important;
+        }
+        
+        svg path {
+            stroke-width: 2px;
+            vector-effect: non-scaling-stroke;
+        }
+        
+        /* Direct constraint for the specific pagination arrows */
+        .relative.inline-flex.items-center svg,
+        .relative.inline-flex.items-center path {
+            width: 20px !important;
+            height: 20px !important;
+            max-width: 20px !important;
+            max-height: 20px !important;
+        }
+        
+        /* All SVG icons */
+        svg.icon {
+            width: 1em;
+            height: 1em;
+            vertical-align: -0.125em;
+        }
     </style>
 
     @stack('styles')
@@ -505,7 +609,7 @@
                 <svg viewBox="0 0 24 24">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
                 </svg>
-                <span>AutoAdmin</span>
+                <span>Shark Car Admin</span>
             </div>
             
             <div class="sidebar-menu">
