@@ -24,7 +24,7 @@
         </div>
         @endif
         
-        <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" id="product-form">
             @csrf
             
             <div class="form-row">
@@ -34,13 +34,6 @@
                 </div>
                 
                 <div class="form-group col-md-6">
-                    <label for="sku">SKU <span class="required">*</span></label>
-                    <input type="text" name="sku" id="sku" class="form-control" value="{{ old('sku') }}" required>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group col-md-6">
                     <label for="category_id">Category <span class="required">*</span></label>
                     <select name="category_id" id="category_id" class="form-control" required>
                         <option value="">Select Category</option>
@@ -49,14 +42,6 @@
                             {{ $category->name }}
                         </option>
                         @endforeach
-                    </select>
-                </div>
-                
-                <div class="form-group col-md-6">
-                    <label for="status">Status</label>
-                    <select name="status" id="status" class="form-control">
-                        <option value="1" {{ old('status', 1) == 1 ? 'selected' : '' }}>Active</option>
-                        <option value="0" {{ old('status', 1) == 0 ? 'selected' : '' }}>Inactive</option>
                     </select>
                 </div>
             </div>
@@ -73,12 +58,12 @@
                 </div>
                 
                 <div class="form-group col-md-6">
-                    <label for="old_price">Old Price (Optional)</label>
+                    <label for="sale_price">Sale Price (Optional)</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
                         </div>
-                        <input type="number" name="old_price" id="old_price" class="form-control" value="{{ old('old_price') }}" step="0.01" min="0">
+                        <input type="number" name="sale_price" id="sale_price" class="form-control" value="{{ old('sale_price') }}" step="0.01" min="0">
                     </div>
                 </div>
             </div>
@@ -86,55 +71,24 @@
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="quantity">Quantity <span class="required">*</span></label>
-                    <input type="number" name="quantity" id="quantity" class="form-control" value="{{ old('quantity') }}" min="0" required>
+                    <input type="number" name="quantity" id="quantity" class="form-control" value="{{ old('quantity', 1) }}" min="0" required>
                 </div>
                 
                 <div class="form-group col-md-6">
-                    <label for="year">Year</label>
-                    <input type="number" name="year" id="year" class="form-control" value="{{ old('year') }}" min="1900" max="{{ date('Y') + 1 }}">
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="mileage">Mileage</label>
-                    <div class="input-group">
-                        <input type="number" name="mileage" id="mileage" class="form-control" value="{{ old('mileage') }}" min="0">
-                        <div class="input-group-append">
-                            <span class="input-group-text">km</span>
+                    <div class="checkbox-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" name="featured" id="featured" class="custom-control-input" {{ old('featured') ? 'checked' : '' }}>
+                            <label class="custom-control-label" for="featured">Featured Product</label>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-6">
-                    <label for="transmission">Transmission</label>
-                    <select name="transmission" id="transmission" class="form-control">
-                        <option value="">Select Transmission</option>
-                        <option value="automatic" {{ old('transmission') == 'automatic' ? 'selected' : '' }}>Automatic</option>
-                        <option value="manual" {{ old('transmission') == 'manual' ? 'selected' : '' }}>Manual</option>
-                        <option value="semi-automatic" {{ old('transmission') == 'semi-automatic' ? 'selected' : '' }}>Semi-Automatic</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="fuel_type">Fuel Type</label>
-                    <select name="fuel_type" id="fuel_type" class="form-control">
-                        <option value="">Select Fuel Type</option>
-                        <option value="petrol" {{ old('fuel_type') == 'petrol' ? 'selected' : '' }}>Petrol</option>
-                        <option value="diesel" {{ old('fuel_type') == 'diesel' ? 'selected' : '' }}>Diesel</option>
-                        <option value="electric" {{ old('fuel_type') == 'electric' ? 'selected' : '' }}>Electric</option>
-                        <option value="hybrid" {{ old('fuel_type') == 'hybrid' ? 'selected' : '' }}>Hybrid</option>
-                    </select>
-                </div>
-                
-                <div class="form-group col-md-6">
-                    <label for="engine_size">Engine Size</label>
-                    <div class="input-group">
-                        <input type="number" name="engine_size" id="engine_size" class="form-control" value="{{ old('engine_size') }}" step="0.1" min="0">
-                        <div class="input-group-append">
-                            <span class="input-group-text">L</span>
+                        
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" name="is_new" id="is_new" class="custom-control-input" {{ old('is_new') ? 'checked' : '' }} checked>
+                            <label class="custom-control-label" for="is_new">New Product</label>
+                        </div>
+                        
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" name="on_sale" id="on_sale" class="custom-control-input" {{ old('on_sale') ? 'checked' : '' }}>
+                            <label class="custom-control-label" for="on_sale">On Sale</label>
                         </div>
                     </div>
                 </div>
@@ -142,64 +96,30 @@
             
             <div class="form-group">
                 <label for="short_description">Short Description <span class="required">*</span></label>
-                <textarea name="short_description" id="short_description" rows="3" class="form-control" required>{{ old('short_description') }}</textarea>
+                <textarea name="description" id="short_description" rows="4" class="form-control" required>{{ old('description') }}</textarea>
+                <small class="form-text text-muted">A brief overview of the vehicle that will appear in product cards and listings.</small>
             </div>
             
             <div class="form-group">
-                <label for="description">Full Description <span class="required">*</span></label>
-                <textarea name="description" id="description" rows="6" class="form-control" required>{{ old('description') }}</textarea>
+                <label for="detailed_description">Detailed Information <span class="required">*</span></label>
+                <textarea name="details" id="detailed_description" rows="8" class="form-control large-textarea">{{ old('details') }}</textarea>
+                <small class="form-text text-muted">Full details about the vehicle including specifications, features, and other important information.</small>
             </div>
             
             <div class="form-group">
-                <label>Product Images <span class="required">*</span></label>
-                <div class="dropzone-container">
-                    <div id="product-images-dropzone" class="dropzone"></div>
-                    <div class="dropzone-message">Click or drag files to upload</div>
-                </div>
-                <div id="image-preview-container" class="image-preview-container"></div>
+                <label>Main Product Image <span class="required">*</span></label>
+                <input type="file" name="image" id="main-image" class="form-control-file" accept="image/*" required>
+                <div id="main-image-preview" class="mt-2"></div>
             </div>
             
             <div class="form-group">
-                <label>Additional Features</label>
-                <div class="features-container">
-                    <div class="feature-row">
-                        <div class="row">
-                            <div class="col-md-5">
-                                <input type="text" name="features[0][name]" class="form-control" placeholder="Feature name (e.g. Air Conditioning)">
-                            </div>
-                            <div class="col-md-5">
-                                <input type="text" name="features[0][value]" class="form-control" placeholder="Feature value (e.g. Yes)">
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-danger remove-feature" disabled>
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" id="add-feature" class="btn btn-outline-primary mt-2">
-                    <i class="bi bi-plus-circle"></i> Add Feature
-                </button>
-            </div>
-            
-            <div class="form-group">
-                <label for="meta_title">Meta Title</label>
-                <input type="text" name="meta_title" id="meta_title" class="form-control" value="{{ old('meta_title') }}">
-            </div>
-            
-            <div class="form-group">
-                <label for="meta_description">Meta Description</label>
-                <textarea name="meta_description" id="meta_description" rows="2" class="form-control">{{ old('meta_description') }}</textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="meta_keywords">Meta Keywords</label>
-                <input type="text" name="meta_keywords" id="meta_keywords" class="form-control" value="{{ old('meta_keywords') }}" placeholder="Separate keywords with commas">
+                <label>Additional Images</label>
+                <input type="file" name="additional_images[]" id="additional-images" class="form-control-file" accept="image/*" multiple>
+                <div id="additional-images-preview" class="image-preview-container"></div>
             </div>
             
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="save-product">
                     <i class="bi bi-check-circle"></i> Save Product
                 </button>
                 <a href="{{ route('admin.products.index') }}" class="btn btn-light">Cancel</a>
@@ -209,7 +129,6 @@
 </div>
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
 <style>
     .products-container {
         width: 100%;
@@ -251,6 +170,22 @@
         outline: none;
     }
     
+    .large-textarea {
+        min-height: 200px;
+        font-family: Arial, sans-serif;
+    }
+    
+    .form-text {
+        font-size: 12px;
+        margin-top: 5px;
+        display: block;
+    }
+    
+    .form-control-file {
+        display: block;
+        width: 100%;
+    }
+    
     .required {
         color: #dc3545;
     }
@@ -259,6 +194,18 @@
         display: block;
         margin-bottom: 5px;
         font-weight: 500;
+    }
+    
+    .custom-control {
+        margin-bottom: 10px;
+    }
+    
+    .custom-control-label {
+        cursor: pointer;
+    }
+    
+    .checkbox-group {
+        padding-top: 8px;
     }
     
     .input-group {
@@ -333,68 +280,10 @@
         border: 1px solid #6c757d;
     }
     
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-        border: 1px solid #dc3545;
-    }
-    
     .btn-light {
         background-color: #f8f9fa;
         color: #212529;
         border: 1px solid #ddd;
-    }
-    
-    .btn-outline-primary {
-        background-color: transparent;
-        color: var(--primary);
-        border: 1px solid var(--primary);
-    }
-    
-    .btn-outline-primary:hover {
-        background-color: var(--primary);
-        color: white;
-    }
-    
-    .alert {
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-    }
-    
-    .alert-danger {
-        background-color: rgba(220, 53, 69, 0.1);
-        border: 1px solid rgba(220, 53, 69, 0.2);
-        color: #dc3545;
-    }
-    
-    .dropzone-container {
-        position: relative;
-        min-height: 150px;
-        border: 2px dashed #ddd;
-        border-radius: 5px;
-        background-color: #f8f9fa;
-    }
-    
-    .dropzone {
-        min-height: 150px;
-        border: none !important;
-        padding: 0 !important;
-        background: transparent !important;
-    }
-    
-    .dropzone .dz-message {
-        margin: 0 !important;
-    }
-    
-    .dropzone-message {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: #666;
-        text-align: center;
-        pointer-events: none;
     }
     
     .image-preview-container {
@@ -419,30 +308,6 @@
         object-fit: cover;
     }
     
-    .image-remove {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        width: 20px;
-        height: 20px;
-        background-color: rgba(220, 53, 69, 0.8);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 10px;
-        cursor: pointer;
-    }
-    
-    .features-container {
-        margin-bottom: 10px;
-    }
-    
-    .feature-row {
-        margin-bottom: 10px;
-    }
-    
     .form-actions {
         margin-top: 30px;
         display: flex;
@@ -464,83 +329,49 @@
 @endpush
 
 @push('scripts')
-<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
-    // Initialize TinyMCE
-    tinymce.init({
-        selector: '#description',
-        plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-    });
-    
-    // Initialize Dropzone
-    Dropzone.autoDiscover = false;
-    
     $(document).ready(function() {
-        // Product Images Dropzone
-        const productDropzone = new Dropzone("#product-images-dropzone", {
-            url: "{{ route('admin.products.upload-image') }}",
-            paramName: "image",
-            maxFilesize: 5, // MB
-            maxFiles: 5,
-            acceptedFiles: "image/*",
-            headers: {
-                'X-CSRF-TOKEN': "{{ csrf_token() }}"
-            },
-            addRemoveLinks: true,
-            success: function(file, response) {
-                // Create hidden input with the uploaded image path
-                const input = document.createElement('input');
-                input.setAttribute('type', 'hidden');
-                input.setAttribute('name', 'images[]');
-                input.setAttribute('value', response.path);
-                file.previewElement.appendChild(input);
+        // Preview main image
+        $('#main-image').change(function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#main-image-preview').html(`
+                        <div class="image-preview">
+                            <img src="${e.target.result}" alt="Main Image Preview">
+                        </div>
+                    `);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Preview additional images
+        $('#additional-images').change(function() {
+            const files = this.files;
+            $('#additional-images-preview').empty();
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
                 
-                // Store the path in the file object for later use
-                file.path = response.path;
+                reader.onload = function(e) {
+                    $('#additional-images-preview').append(`
+                        <div class="image-preview">
+                            <img src="${e.target.result}" alt="Additional Image Preview">
+                        </div>
+                    `);
+                }
+                
+                reader.readAsDataURL(file);
             }
         });
-        
-        // Add Feature button
-        let featureIndex = 1;
-        
-        $('#add-feature').on('click', function() {
-            const newFeature = `
-                <div class="feature-row">
-                    <div class="row">
-                        <div class="col-md-5">
-                            <input type="text" name="features[${featureIndex}][name]" class="form-control" placeholder="Feature name (e.g. Air Conditioning)">
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" name="features[${featureIndex}][value]" class="form-control" placeholder="Feature value (e.g. Yes)">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-danger remove-feature">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            $('.features-container').append(newFeature);
-            featureIndex++;
-            
-            // Enable the first remove button if we have more than one feature
-            if ($('.feature-row').length > 1) {
-                $('.remove-feature').prop('disabled', false);
-            }
-        });
-        
-        // Remove Feature button
-        $(document).on('click', '.remove-feature', function() {
-            $(this).closest('.feature-row').remove();
-            
-            // Disable the last remove button if we have only one feature
-            if ($('.feature-row').length === 1) {
-                $('.remove-feature').prop('disabled', true);
-            }
+
+        // Submit form
+        $('#product-form').on('submit', function(e) {
+            // Make sure the form is submitted
+            return true;
         });
     });
 </script>

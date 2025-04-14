@@ -55,8 +55,8 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lt:price',
             'quantity' => 'required|integer|min:0',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'featured' => 'boolean',
             'is_new' => 'boolean',
             'on_sale' => 'boolean',
@@ -132,8 +132,8 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lt:price',
             'quantity' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'featured' => 'boolean',
             'is_new' => 'boolean',
             'on_sale' => 'boolean',
@@ -218,5 +218,22 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully');
+    }
+
+    /**
+     * Upload temporary product image for the dropzone
+     */
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
+        ]);
+        
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products/temp', 'public');
+            return response()->json(['success' => true, 'path' => $path]);
+        }
+        
+        return response()->json(['success' => false], 400);
     }
 }

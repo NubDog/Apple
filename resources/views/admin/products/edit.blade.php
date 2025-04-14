@@ -118,7 +118,7 @@
                         <span class="file-text">Choose a new image</span>
                     </label>
                 </div>
-                <small class="form-text text-muted">Maximum size: 2MB. Recommended aspect ratio: 1:1. Leave empty to keep the current image.</small>
+                <small class="form-text text-muted">Maximum size: 10MB. Recommended aspect ratio: 1:1. Leave empty to keep the current image.</small>
                 
                 <div class="current-image">
                     <p>Current Image:</p>
@@ -139,7 +139,7 @@
                         <span class="file-text">Choose new additional images</span>
                     </label>
                 </div>
-                <small class="form-text text-muted">You can select multiple images. Maximum size: 2MB per image. Uploading new images will replace all current additional images.</small>
+                <small class="form-text text-muted">You can select multiple images. Maximum size: 10MB per image. Uploading new images will replace all current additional images.</small>
                 
                 <div class="current-additional-images">
                     <p>Current Additional Images:</p>

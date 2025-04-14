@@ -85,6 +85,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     
     // Admin Product management
     Route::resource('products', AdminProductController::class, ['as' => 'admin']);
+    Route::post('/products/upload-image', [AdminProductController::class, 'uploadImage'])->name('admin.products.upload-image');
     
     // Admin Order management
     Route::resource('orders', AdminOrderController::class, ['as' => 'admin']);
