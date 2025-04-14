@@ -1,0 +1,23 @@
+/*start locale switcher*/
+html:not(.aos).ac-ls-visible {
+	--global-nav-collective-height: calc(
+		var(--r-globalnav-height) + var(--global-nav-ad-bar-height)
+	);
+}
+
+html:not(.aos).ac-ls-visible .main {
+	padding-top: calc(
+		var(--global-nav-collective-height) + var(--r-localeswitcher-height)
+	);
+}
+/*start locale switcher*/
+
+.tv-plus-gallery-play-pause, .fam-gallery-play-pause {
+	margin-top: -30px;
+	margin-bottom: 0;
+}
+
+/* Fix padding issue */
+html[data-segment-code].ac-ls-visible .main {
+	padding-top: var(--global-nav-collective-height);
+}
