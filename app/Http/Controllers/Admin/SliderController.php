@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Slider;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class SliderController extends Controller
@@ -93,12 +94,16 @@ class SliderController extends Controller
         
         // Upload and store image
         if ($request->hasFile('image')) {
+            // Debug log to check the uploaded file
+            Log::info('Uploading file: ' . $request->file('image')->getClientOriginalName());
+            
             // Delete old image if exists
             if ($slider->image) {
                 Storage::disk('public')->delete($slider->image);
             }
             
             $path = $request->file('image')->store('sliders', 'public');
+            Log::info('Saved file path: ' . $path);
             $data['image'] = $path;
         }
         

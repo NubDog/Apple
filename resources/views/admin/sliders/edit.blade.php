@@ -82,7 +82,12 @@
                 
                 <div class="current-image">
                     <p>Current Image:</p>
-                    <img src="{{ asset('storage/' . $slider->image) }}" alt="{{ $slider->title }}" class="current-img">
+                    @if($slider->image)
+                        <img src="{{ asset('storage/' . $slider->image) }}" alt="{{ $slider->title }}" class="current-img" onerror="imageError(this)">
+                        <p class="image-path">Path: {{ $slider->image }}</p>
+                    @else
+                        <p class="text-muted">No image currently set</p>
+                    @endif
                 </div>
                 
                 <div class="image-preview" id="imagePreview">
@@ -301,6 +306,14 @@
 
 @push('scripts')
 <script>
+    function imageError(img) {
+        console.error('Error loading image:', img.src);
+        img.src = '{{ asset('images/no-image.jpg') }}';
+        img.alt = 'Image not found';
+        document.querySelector('.image-path').style.color = 'red';
+        document.querySelector('.image-path').textContent += ' (Error loading image)';
+    }
+
     $(document).ready(function() {
         // Image preview
         $('#image').change(function() {
