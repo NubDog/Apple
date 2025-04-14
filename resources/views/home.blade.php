@@ -12,6 +12,9 @@
             --primary-color: #1a237e;
             --secondary-color: #f44336;
             --light-bg: #f5f5f5;
+            --badge-new: #4169e1;
+            --badge-sale: #e74c3c;
+            --badge-featured: #27ae60;
         }
         
         body {
@@ -238,6 +241,150 @@
         .product-card:nth-child(2) { animation-delay: 0.2s; }
         .product-card:nth-child(3) { animation-delay: 0.3s; }
         .product-card:nth-child(4) { animation-delay: 0.4s; }
+        
+        /* Product Card New Styles */
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        
+        .product-card .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+            height: 100%;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .product-card .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+        }
+        
+        .product-card .card-img-top {
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .product-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 5px 10px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 4px;
+            z-index: 1;
+        }
+        
+        .badge-new {
+            background-color: var(--badge-new);
+        }
+        
+        .badge-sale {
+            background-color: var(--badge-sale);
+        }
+        
+        .badge-featured {
+            background-color: var(--badge-featured);
+        }
+        
+        .wishlist-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1;
+            transition: all 0.2s;
+        }
+        
+        .wishlist-btn:hover {
+            background-color: #f8f8f8;
+            transform: scale(1.1);
+        }
+        
+        .wishlist-btn i {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .product-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .product-specs {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        .product-features {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .feature {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .feature i {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .feature span {
+            font-size: 12px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .product-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        
+        .view-details {
+            display: block;
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .view-details:hover {
+            color: var(--secondary-color);
+        }
+        
+        .view-details i {
+            margin-left: 5px;
+            transition: transform 0.2s;
+        }
+        
+        .view-details:hover i {
+            transform: translateX(3px);
+        }
     </style>
 </head>
 <body>
@@ -373,33 +520,45 @@
         <div class="row">
             @foreach($featuredProducts as $product)
                 <div class="col-md-6 col-lg-3 mb-4 product-card">
-                    <div class="card h-100">
+                    <div class="card h-100 position-relative">
                         @if($product->is_new)
-                            <span class="badge badge-new">Mới</span>
+                            <div class="product-badge badge-new">New</div>
                         @elseif($product->on_sale)
-                            <span class="badge badge-sale">Giảm giá</span>
+                            <div class="product-badge badge-sale">Sale</div>
+                        @else
+                            <div class="product-badge badge-featured">Great Price</div>
                         @endif
+                        
+                        <div class="wishlist-btn">
+                            <i class="far fa-bookmark"></i>
+                        </div>
+                        
                         <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top" alt="{{ $product->name }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $product->name }}</h5>
-                            <p class="card-text">{{ Str::limit($product->description, 100) }}</p>
-                            <div class="d-flex align-items-center mb-3">
-                                @if($product->on_sale && $product->sale_price)
-                                    <span class="price sale-price">${{ number_format($product->sale_price) }}</span>
-                                    <span class="original-price">${{ number_format($product->price) }}</span>
-                                @else
-                                    <span class="price">${{ number_format($product->price) }}</span>
-                                @endif
+                        
+                        <div class="card-body p-3">
+                            <h5 class="product-title">{{ $product->name }}</h5>
+                            <p class="product-specs">{{ $product->details ?? '4.0 DS PowerPulse Momentum 5dr AWD Auto' }}</p>
+                            
+                            <div class="product-features">
+                                <div class="feature">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    <span>{{ rand(20, 2500) }} Miles</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-gas-pump"></i>
+                                    <span>{{ ['Petrol', 'Diesel', 'Hybrid', 'Electric'][rand(0, 3)] }}</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-cog"></i>
+                                    <span>{{ ['Automatic', 'Manual'][rand(0, 1)] }}</span>
+                                </div>
                             </div>
-                            <div class="d-flex">
-                                <a href="{{ route('products.show', $product->slug) }}" class="btn btn-outline-primary me-2">Chi tiết</a>
-                                <form action="{{ route('cart.add') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="btn btn-primary"><i class="fas fa-shopping-cart"></i> Thêm vào giỏ</button>
-                                </form>
-                            </div>
+                            
+                            <div class="product-price">${{ number_format($product->on_sale && $product->sale_price ? $product->sale_price : $product->price) }}</div>
+                            
+                            <a href="{{ route('products.show', $product->slug) }}" class="view-details">
+                                View Details <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -416,33 +575,45 @@
         <div class="row">
             @foreach($newProducts as $product)
                 <div class="col-md-6 col-lg-3 mb-4 product-card">
-                    <div class="card h-100">
+                    <div class="card h-100 position-relative">
                         @if($product->is_new)
-                            <span class="badge badge-new">Mới</span>
+                            <div class="product-badge badge-new">New</div>
                         @elseif($product->on_sale)
-                            <span class="badge badge-sale">Giảm giá</span>
+                            <div class="product-badge badge-sale">Sale</div>
+                        @else
+                            <div class="product-badge badge-featured">Great Price</div>
                         @endif
+                        
+                        <div class="wishlist-btn">
+                            <i class="far fa-bookmark"></i>
+                        </div>
+                        
                         <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top" alt="{{ $product->name }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $product->name }}</h5>
-                            <p class="card-text">{{ Str::limit($product->description, 100) }}</p>
-                            <div class="d-flex align-items-center mb-3">
-                                @if($product->on_sale && $product->sale_price)
-                                    <span class="price sale-price">${{ number_format($product->sale_price) }}</span>
-                                    <span class="original-price">${{ number_format($product->price) }}</span>
-                                @else
-                                    <span class="price">${{ number_format($product->price) }}</span>
-                                @endif
+                        
+                        <div class="card-body p-3">
+                            <h5 class="product-title">{{ $product->name }}</h5>
+                            <p class="product-specs">{{ $product->details ?? '4.0 DS PowerPulse Momentum 5dr AWD Auto' }}</p>
+                            
+                            <div class="product-features">
+                                <div class="feature">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    <span>{{ rand(20, 2500) }} Miles</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-gas-pump"></i>
+                                    <span>{{ ['Petrol', 'Diesel', 'Hybrid', 'Electric'][rand(0, 3)] }}</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-cog"></i>
+                                    <span>{{ ['Automatic', 'Manual'][rand(0, 1)] }}</span>
+                                </div>
                             </div>
-                            <div class="d-flex">
-                                <a href="{{ route('products.show', $product->slug) }}" class="btn btn-outline-primary me-2">Chi tiết</a>
-                                <form action="{{ route('cart.add') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="btn btn-primary"><i class="fas fa-shopping-cart"></i> Thêm vào giỏ</button>
-                                </form>
-                            </div>
+                            
+                            <div class="product-price">${{ number_format($product->on_sale && $product->sale_price ? $product->sale_price : $product->price) }}</div>
+                            
+                            <a href="{{ route('products.show', $product->slug) }}" class="view-details">
+                                View Details <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -456,25 +627,39 @@
         <div class="row">
             @foreach($saleProducts as $product)
                 <div class="col-md-6 col-lg-3 mb-4 product-card">
-                    <div class="card h-100">
-                        <span class="badge badge-sale">Giảm giá</span>
+                    <div class="card h-100 position-relative">
+                        <div class="product-badge badge-sale">Sale</div>
+                        
+                        <div class="wishlist-btn">
+                            <i class="far fa-bookmark"></i>
+                        </div>
+                        
                         <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top" alt="{{ $product->name }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $product->name }}</h5>
-                            <p class="card-text">{{ Str::limit($product->description, 100) }}</p>
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="price sale-price">${{ number_format($product->sale_price) }}</span>
-                                <span class="original-price">${{ number_format($product->price) }}</span>
+                        
+                        <div class="card-body p-3">
+                            <h5 class="product-title">{{ $product->name }}</h5>
+                            <p class="product-specs">{{ $product->details ?? '4.0 DS PowerPulse Momentum 5dr AWD Auto' }}</p>
+                            
+                            <div class="product-features">
+                                <div class="feature">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    <span>{{ rand(20, 2500) }} Miles</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-gas-pump"></i>
+                                    <span>{{ ['Petrol', 'Diesel', 'Hybrid', 'Electric'][rand(0, 3)] }}</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-cog"></i>
+                                    <span>{{ ['Automatic', 'Manual'][rand(0, 1)] }}</span>
+                                </div>
                             </div>
-                            <div class="d-flex">
-                                <a href="{{ route('products.show', $product->slug) }}" class="btn btn-outline-primary me-2">Chi tiết</a>
-                                <form action="{{ route('cart.add') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="btn btn-primary"><i class="fas fa-shopping-cart"></i> Thêm vào giỏ</button>
-                                </form>
-                            </div>
+                            
+                            <div class="product-price">${{ number_format($product->sale_price) }}</div>
+                            
+                            <a href="{{ route('products.show', $product->slug) }}" class="view-details">
+                                View Details <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
                 </div>

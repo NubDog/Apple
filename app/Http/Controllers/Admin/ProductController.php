@@ -17,7 +17,20 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with('category')->orderBy('created_at', 'desc')->paginate(10);
-        return view('admin.products.index', compact('products'));
+        $categories = Category::orderBy('name')->get();
+        $totalProducts = Product::count();
+        $activeProducts = Product::where('quantity', '>', 0)->count();
+        $lowStockProducts = Product::where('quantity', '>', 0)->where('quantity', '<=', 10)->count();
+        $outOfStockProducts = Product::where('quantity', 0)->count();
+        
+        return view('admin.products.index', compact(
+            'products', 
+            'categories', 
+            'totalProducts', 
+            'activeProducts', 
+            'lowStockProducts', 
+            'outOfStockProducts'
+        ));
     }
 
     /**

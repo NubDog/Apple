@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Lamborghini Aventador",
+    "slug": "lamborghini-aventador",
+    "description": "The Lamborghini Aventador is a mid-engine, two passenger sports car manufactured and marketed by Lamborghini from 2011 until 2022.",
+    "details": {
+      "engine": "6.5L L539 V12",
+      "power": "770 PS",
+      "transmission": "7-speed Graziano ISR automated manual",
+      "0-100_kmh": "2.9 s",
+      "top_speed": "350 km/h"
+    },
+    "price": 498258,
+    "sale_price": 465432,
+    "quantity": 1,
+    "image": "https://upload.wikimedia.org/wikipedia/commons/1/19/Lamborghini_Aventador.jpg",
+    "images": [
+      "https://upload.wikimedia.org/wikipedia/commons/1/19/Lamborghini_Aventador.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/4/4e/Lamborghini_Aventador_SVJ_63.jpg"
+    ],
+    "featured": true
+  },
+  {
+    "name": "Lamborghini Hurac\u00e1n",
+    "slug": "lamborghini-huracan",
+    "description": "The Lamborghini Hurac\u00e1n is a sports car manufactured by Lamborghini replacing the Gallardo, produced from 2014 to present.",
+    "details": {
+      "engine": "5.2L naturally aspirated V10",
+      "power": "610 PS",
+      "transmission": "7-speed dual-clutch",
+      "0-100_kmh": "2.5 s",
+      "top_speed": "325 km/h"
+    },
+    "price": 213104,
+    "sale_price": 310867,
+    "quantity": 1,
+    "image": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Lamborghini_Hurac%C3%A1n_LP_610-4.jpg",
+    "images": [
+      "https://upload.wikimedia.org/wikipedia/commons/9/9f/Lamborghini_Hurac%C3%A1n_LP_610-4.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/df/Lamborghini_Huracan_LP610-4_%2817341486482%29.jpg"
+    ],
+    "featured": true
+  }
+]
