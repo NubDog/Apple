@@ -543,39 +543,6 @@
         </button>
     </div>
 
-    <!-- Categories Section -->
-    <div class="container mt-5">
-        <h2 class="section-title">Danh mục xe</h2>
-        <div class="row">
-            @foreach($categories as $category)
-                <div class="col-md-4 col-lg-2">
-                    <a href="{{ route('category.products', $category->slug) }}" class="text-decoration-none">
-                        <div class="category-card">
-                            <div class="category-icon">
-                                @if($category->name == 'Sedan')
-                                    <i class="fas fa-car"></i>
-                                @elseif($category->name == 'SUV')
-                                    <i class="fas fa-truck-monster"></i>
-                                @elseif($category->name == 'Hatchback')
-                                    <i class="fas fa-car-side"></i>
-                                @elseif($category->name == 'Luxury')
-                                    <i class="fas fa-gem"></i>
-                                @elseif($category->name == 'Sports Car')
-                                    <i class="fas fa-tachometer-alt"></i>
-                                @elseif($category->name == 'Electric')
-                                    <i class="fas fa-bolt"></i>
-                                @else
-                                    <i class="fas fa-car-alt"></i>
-                                @endif
-                            </div>
-                            <h5>{{ $category->name }}</h5>
-                        </div>
-                    </a>
-                </div>
-            @endforeach
-        </div>
-    </div>
-
     <!-- Featured Products -->
     <div class="container mt-5">
         <h2 class="section-title">Xe nổi bật</h2>
