@@ -6,6 +6,7 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <style>
         /* Custom styles */
@@ -369,6 +370,12 @@
     
     <!-- Include Telegram Chat -->
     <x-telegram-chat />
+    
+    <!-- WOW.js for scroll animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
+    <script>
+        new WOW().init();
+    </script>
     
     @stack('scripts')
 </body>
