@@ -6,6 +6,10 @@
 <div class="users-dashboard">
     <!-- Header Section -->
     <div class="dashboard-header">
+        <!-- Phần này bị lỗi hiển thị mà lười fix quá -->
+        <!-- <div class="breadcrumb">
+            <span>Dashboard</span> <i class="bi bi-chevron-right"></i> <span>Users Management</span>
+        </div> -->
         <div class="header-actions">
             <button class="btn-notification">
                 <i class="bi bi-bell"></i>
@@ -117,10 +121,10 @@
                             <span>Activity</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress" style="width: {{ $user->isAdmin() ? '100%' : '60%' }}"></div>
+                            <div class="progress" style="width: {!! $user->isAdmin() ? '100%' : '60%' !!}"></div>
                         </div>
                         <div class="counter-value">
-                            {{ $user->isAdmin() ? 'Admin Access' : 'Regular Access' }}
+                            {!! $user->isAdmin() ? 'Admin Access' : 'Regular Access' !!}
                         </div>
                     </div>
                 </div>
@@ -136,11 +140,11 @@
                         <i class="bi bi-chat"></i>
                     </button>
                     @if($user->id != auth()->id())
-                    <button class="btn-action delete" title="Delete" onclick="confirmDelete({{ $user->id }})">
+                    <button class="btn-action delete" title="Delete" onclick="confirmDelete({!! $user->id !!})">
                         <i class="bi bi-trash"></i>
                     </button>
                     
-                    <form id="delete-form-{{ $user->id }}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: none;">
+                    <form id="delete-form-{!! $user->id !!}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: none;">
                         @csrf
                         @method('DELETE')
                     </form>
@@ -152,7 +156,32 @@
         
         <!-- Pagination -->
         <div class="pagination-container">
-            {{ $users->links() }}
+            <div class="pagination-info">
+                Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} results
+            </div>
+            <nav aria-label="User pagination">
+                <ul class="pagination">
+                    @if ($users->onFirstPage())
+                        <li class="disabled"><span>&laquo;</span></li>
+                    @else
+                        <li><a href="{{ $users->previousPageUrl() }}" rel="prev">&laquo;</a></li>
+                    @endif
+
+                    @foreach(range(1, $users->lastPage()) as $page)
+                        @if($page == $users->currentPage())
+                            <li class="active"><span>{{ $page }}</span></li>
+                        @else
+                            <li><a href="{{ $users->url($page) }}">{{ $page }}</a></li>
+                        @endif
+                    @endforeach
+
+                    @if ($users->hasMorePages())
+                        <li><a href="{{ $users->nextPageUrl() }}" rel="next">&raquo;</a></li>
+                    @else
+                        <li class="disabled"><span>&raquo;</span></li>
+                    @endif
+                </ul>
+            </nav>
         </div>
         
         @if(session('success'))
@@ -313,8 +342,8 @@
         border-radius: 12px;
         padding: 24px;
         margin-bottom: 24px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         margin-left: 250px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
     
     /* Section Header */
@@ -428,18 +457,24 @@
     /* Stats Container */
     .stats-container {
         display: flex;
+        justify-content: space-between;
+        align-items: center;
         gap: 20px;
         margin-bottom: 24px;
+        width: 100%;
     }
     
     .stat-card {
         flex: 1;
         display: flex;
         align-items: center;
+        justify-content: center;
+        flex-direction: row;
         padding: 16px;
         border-radius: 12px;
         background-color: #f8f9fa;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        min-width: 0;
     }
     
     .stat-icon {
@@ -751,8 +786,57 @@
     /* Pagination */
     .pagination-container {
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
         margin-top: 24px;
+    }
+    
+    .pagination-info {
+        font-size: 14px;
+        color: #6c757d;
+    }
+    
+    .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        gap: 8px;
+    }
+    
+    .pagination li {
+        display: inline-block;
+    }
+    
+    .pagination li a, .pagination li span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 14px;
+        color: #495057;
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        transition: all 0.2s;
+    }
+    
+    .pagination li.active span {
+        background-color: #4361ee;
+        color: white;
+        border-color: #4361ee;
+    }
+    
+    .pagination li.disabled span {
+        color: #adb5bd;
+        cursor: not-allowed;
+    }
+    
+    .pagination li a:hover {
+        background-color: #e9ecef;
     }
     
     /* Alerts */
