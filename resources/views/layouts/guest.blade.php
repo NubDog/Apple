@@ -26,5 +26,8 @@
                 {{ $slot }}
             </div>
         </div>
+        
+        <!-- Include Telegram Chat -->
+        <x-telegram-chat />
     </body>
 </html>

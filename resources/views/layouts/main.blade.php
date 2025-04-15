@@ -367,8 +367,8 @@
         });
     </script>
     
-    <!-- Include Facebook Messenger Chat -->
-    <x-messenger-chat />
+    <!-- Include Telegram Chat -->
+    <x-telegram-chat />
     
     @stack('scripts')
 </body>
