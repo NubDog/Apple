@@ -3,271 +3,282 @@
 @section('title', 'Users Management')
 
 @section('content')
-<div class="users-dashboard">
-    <!-- Header Section -->
-    <div class="dashboard-header">
-        <!-- Phần này bị lỗi hiển thị mà lười fix quá -->
-        <!-- <div class="breadcrumb">
-            <span>Dashboard</span> <i class="bi bi-chevron-right"></i> <span>Users Management</span>
-        </div> -->
-        <div class="header-actions">
-            <button class="btn-notification">
-                <i class="bi bi-bell"></i>
-                <span class="notification-badge">3</span>
-            </button>
-            <button class="btn-settings">
-                <i class="bi bi-gear"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- Users Section -->
-    <div class="section-container">
-        <div class="section-header">
-            <h2 class="section-title">Users</h2>
-            <div class="section-actions">
-                <a href="{{ route('admin.users.index') }}" class="btn-view-all">View All</a>
+<div class="admin-container">
+    <div class="users-dashboard">
+        <!-- Header Section -->
+        <div class="dashboard-header">
+            <div class="breadcrumb">
+                <span>Dashboard</span> <i class="bi bi-chevron-right"></i> <span>Users Management</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn-notification">
+                    <i class="bi bi-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                <button class="btn-settings">
+                    <i class="bi bi-gear"></i>
+                </button>
             </div>
         </div>
-        
-        <!-- Control Bar -->
-        <div class="control-bar">
-            <div class="search-container">
-                <i class="bi bi-search search-icon"></i>
-                <input type="text" id="search-users" class="search-input" placeholder="Search by name...">
+
+        <!-- Users Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">Users</h2>
+                <div class="section-actions">
+                    <a href="{{ route('admin.users.index') }}" class="btn-view-all">View All</a>
+                </div>
             </div>
             
-            <div class="filters">
-                <a href="{{ route('admin.users.create') }}" class="btn-primary">
-                    <i class="bi bi-plus"></i> Add New User
-                </a>
+            <!-- Control Bar -->
+            <div class="control-bar">
+                <div class="search-container">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" id="search-users" class="search-input" placeholder="Search by name...">
+                </div>
+                
+                <div class="filters">
+                    <a href="{{ route('admin.users.create') }}" class="btn-primary">
+                        <i class="bi bi-plus"></i> Add New User
+                    </a>
+                    
+                    <div class="filter-buttons">
+                        <button class="btn-filter active">All</button>
+                        <button class="btn-filter">Admin</button>
+                        <button class="btn-filter">Regular</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Statistics -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ $totalUsers }}</h3>
+                        <p>Total Users</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="bi bi-person-check-fill"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ $activeUsers }}</h3>
+                        <p>Active Users</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ $adminUsers }}</h3>
+                        <p>Admin Users</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Users Cards Grid -->
+            <div class="users-grid">
+                @foreach($users as $user)
+                <div class="user-card" data-role="{{ $user->isAdmin() ? 'admin' : 'user' }}">
+                    <div class="card-header">
+                        <div class="time-badge">
+                            <i class="bi bi-clock"></i> Registered: {{ $user->created_at->format('M d, Y') }}
+                        </div>
+                        <div class="status-badge {{ $user->isAdmin() ? 'admin' : 'regular' }}">
+                            {{ $user->isAdmin() ? 'Admin' : 'Regular User' }}
+                        </div>
+                    </div>
+                    
+                    <div class="card-content">
+                        <div class="user-avatar">
+                            <img src="{{ $user->profile_photo_url ?? asset('images/default-avatar.jpg') }}" alt="{{ $user->name }}">
+                        </div>
+                        
+                        <h3 class="user-name">{{ $user->name }}</h3>
+                        <p class="user-specialty">{{ $user->email }}</p>
+                        
+                        <div class="user-details">
+                            <div class="detail-item">
+                                <i class="bi bi-telephone"></i>
+                                <span>{{ $user->phone ?? 'No phone number' }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="bi bi-geo-alt"></i>
+                                <span>{{ $user->address ?? 'No address' }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="patients-counter">
+                            <div class="counter-label">
+                                <i class="bi bi-activity"></i>
+                                <span>Activity</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: {{ $user->isAdmin() ? '100%' : '60%' }}"></div>
+                            </div>
+                            <div class="counter-value">
+                                {{ $user->isAdmin() ? 'Admin Access' : 'Regular Access' }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <a href="{{ route('admin.users.show', $user->id) }}" class="btn-action view" title="View">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn-action edit" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <button class="btn-action message" title="Message">
+                            <i class="bi bi-chat"></i>
+                        </button>
+                        @if($user->id != auth()->id())
+                        <button class="btn-action delete" title="Delete" onclick="confirmDelete({{ $user->id }})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        
+                        <form id="delete-form-{{ $user->id }}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: none;">
+                            @csrf
+                            @method('DELETE')
+                        </form>
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} results
+                </div>
+                <nav aria-label="User pagination">
+                    <ul class="pagination">
+                        @if ($users->onFirstPage())
+                            <li class="disabled"><span>&laquo;</span></li>
+                        @else
+                            <li><a href="{{ $users->previousPageUrl() }}" rel="prev">&laquo;</a></li>
+                        @endif
+
+                        @foreach(range(1, $users->lastPage()) as $page)
+                            @if($page == $users->currentPage())
+                                <li class="active"><span>{{ $page }}</span></li>
+                            @else
+                                <li><a href="{{ $users->url($page) }}">{{ $page }}</a></li>
+                            @endif
+                        @endforeach
+
+                        @if ($users->hasMorePages())
+                            <li><a href="{{ $users->nextPageUrl() }}" rel="next">&raquo;</a></li>
+                        @else
+                            <li class="disabled"><span>&raquo;</span></li>
+                        @endif
+                    </ul>
+                </nav>
+            </div>
+            
+            @if(session('success'))
+            <div class="alert alert-success alert-dismissible">
+                <i class="bi bi-check-circle"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            @endif
+            
+            @if(session('error'))
+            <div class="alert alert-danger alert-dismissible">
+                <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            @endif
+        </div>
+        
+        <!-- User Roles Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">User Roles</h2>
+                <div class="section-actions">
+                    <button class="btn-view-all">View All</button>
+                </div>
+            </div>
+            
+            <div class="roles-control-bar">
+                <button class="btn-primary">
+                    <i class="bi bi-plus"></i> Add New Role
+                </button>
                 
                 <div class="filter-buttons">
                     <button class="btn-filter active">All</button>
-                    <button class="btn-filter">Admin</button>
-                    <button class="btn-filter">Regular</button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- User Statistics -->
-        <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-icon blue">
-                    <i class="bi bi-people-fill"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ $totalUsers }}</h3>
-                    <p>Total Users</p>
+                    <button class="btn-filter">System</button>
+                    <button class="btn-filter">Custom</button>
                 </div>
             </div>
             
-            <div class="stat-card">
-                <div class="stat-icon green">
-                    <i class="bi bi-person-check-fill"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ $activeUsers }}</h3>
-                    <p>Active Users</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon purple">
-                    <i class="bi bi-shield-lock-fill"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ $adminUsers }}</h3>
-                    <p>Admin Users</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Users Cards Grid -->
-        <div class="users-grid">
-            @foreach($users as $user)
-            <div class="user-card" data-role="{{ $user->isAdmin() ? 'admin' : 'user' }}">
-                <div class="card-header">
-                    <div class="time-badge">
-                        <i class="bi bi-clock"></i> Registered: {{ $user->created_at->format('M d, Y') }}
+            <div class="roles-grid">
+                <div class="role-card">
+                    <div class="role-icon admin">
+                        <i class="bi bi-shield-lock"></i>
                     </div>
-                    <div class="status-badge {{ $user->isAdmin() ? 'admin' : 'regular' }}">
-                        {{ $user->isAdmin() ? 'Admin' : 'Regular User' }}
+                    <div class="role-info">
+                        <h3>Administrator</h3>
+                        <p>Full system access</p>
+                    </div>
+                    <div class="role-actions">
+                        <button class="btn-role-action"><i class="bi bi-pencil"></i></button>
+                        <button class="btn-role-action"><i class="bi bi-info-circle"></i></button>
                     </div>
                 </div>
                 
-                <div class="card-content">
-                    <div class="user-avatar">
-                        <img src="{{ $user->profile_photo_url ?? asset('images/default-avatar.jpg') }}" alt="{{ $user->name }}">
+                <div class="role-card">
+                    <div class="role-icon manager">
+                        <i class="bi bi-briefcase"></i>
                     </div>
-                    
-                    <h3 class="user-name">{{ $user->name }}</h3>
-                    <p class="user-specialty">{{ $user->email }}</p>
-                    
-                    <div class="user-details">
-                        <div class="detail-item">
-                            <i class="bi bi-telephone"></i>
-                            <span>{{ $user->phone ?? 'No phone number' }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="bi bi-geo-alt"></i>
-                            <span>{{ $user->address ?? 'No address' }}</span>
-                        </div>
+                    <div class="role-info">
+                        <h3>Manager</h3>
+                        <p>Product management</p>
                     </div>
-                    
-                    <div class="patients-counter">
-                        <div class="counter-label">
-                            <i class="bi bi-activity"></i>
-                            <span>Activity</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: {!! $user->isAdmin() ? '100%' : '60%' !!}"></div>
-                        </div>
-                        <div class="counter-value">
-                            {!! $user->isAdmin() ? 'Admin Access' : 'Regular Access' !!}
-                        </div>
+                    <div class="role-actions">
+                        <button class="btn-role-action"><i class="bi bi-pencil"></i></button>
+                        <button class="btn-role-action"><i class="bi bi-info-circle"></i></button>
                     </div>
                 </div>
                 
-                <div class="card-actions">
-                    <a href="{{ route('admin.users.show', $user->id) }}" class="btn-action view" title="View">
-                        <i class="bi bi-eye"></i>
-                    </a>
-                    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn-action edit" title="Edit">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    <button class="btn-action message" title="Message">
-                        <i class="bi bi-chat"></i>
-                    </button>
-                    @if($user->id != auth()->id())
-                    <button class="btn-action delete" title="Delete" onclick="confirmDelete({!! $user->id !!})">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                    
-                    <form id="delete-form-{!! $user->id !!}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: none;">
-                        @csrf
-                        @method('DELETE')
-                    </form>
-                    @endif
-                </div>
-            </div>
-            @endforeach
-        </div>
-        
-        <!-- Pagination -->
-        <div class="pagination-container">
-            <div class="pagination-info">
-                Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} results
-            </div>
-            <nav aria-label="User pagination">
-                <ul class="pagination">
-                    @if ($users->onFirstPage())
-                        <li class="disabled"><span>&laquo;</span></li>
-                    @else
-                        <li><a href="{{ $users->previousPageUrl() }}" rel="prev">&laquo;</a></li>
-                    @endif
-
-                    @foreach(range(1, $users->lastPage()) as $page)
-                        @if($page == $users->currentPage())
-                            <li class="active"><span>{{ $page }}</span></li>
-                        @else
-                            <li><a href="{{ $users->url($page) }}">{{ $page }}</a></li>
-                        @endif
-                    @endforeach
-
-                    @if ($users->hasMorePages())
-                        <li><a href="{{ $users->nextPageUrl() }}" rel="next">&raquo;</a></li>
-                    @else
-                        <li class="disabled"><span>&raquo;</span></li>
-                    @endif
-                </ul>
-            </nav>
-        </div>
-        
-        @if(session('success'))
-        <div class="alert alert-success alert-dismissible">
-            <i class="bi bi-check-circle"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        @endif
-        
-        @if(session('error'))
-        <div class="alert alert-danger alert-dismissible">
-            <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        @endif
-    </div>
-    
-    <!-- User Roles Section -->
-    <div class="section-container">
-        <div class="section-header">
-            <h2 class="section-title">User Roles</h2>
-            <div class="section-actions">
-                <button class="btn-view-all">View All</button>
-            </div>
-        </div>
-        
-        <div class="roles-control-bar">
-            <button class="btn-primary">
-                <i class="bi bi-plus"></i> Add New Role
-            </button>
-            
-            <div class="filter-buttons">
-                <button class="btn-filter active">All</button>
-                <button class="btn-filter">System</button>
-                <button class="btn-filter">Custom</button>
-            </div>
-        </div>
-        
-        <div class="roles-grid">
-            <div class="role-card">
-                <div class="role-icon admin">
-                    <i class="bi bi-shield-lock"></i>
-                </div>
-                <div class="role-info">
-                    <h3>Administrator</h3>
-                    <p>Full system access</p>
-                </div>
-                <div class="role-actions">
-                    <button class="btn-role-action"><i class="bi bi-pencil"></i></button>
-                    <button class="btn-role-action"><i class="bi bi-info-circle"></i></button>
-                </div>
-            </div>
-            
-            <div class="role-card">
-                <div class="role-icon manager">
-                    <i class="bi bi-briefcase"></i>
-                </div>
-                <div class="role-info">
-                    <h3>Manager</h3>
-                    <p>Product management</p>
-                </div>
-                <div class="role-actions">
-                    <button class="btn-role-action"><i class="bi bi-pencil"></i></button>
-                    <button class="btn-role-action"><i class="bi bi-info-circle"></i></button>
-                </div>
-            </div>
-            
-            <div class="role-card">
-                <div class="role-icon user">
-                    <i class="bi bi-person"></i>
-                </div>
-                <div class="role-info">
-                    <h3>User</h3>
-                    <p>Regular user access</p>
-                </div>
-                <div class="role-actions">
-                    <button class="btn-role-action"><i class="bi bi-pencil"></i></button>
-                    <button class="btn-role-action"><i class="bi bi-info-circle"></i></button>
+                <div class="role-card">
+                    <div class="role-icon user">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <div class="role-info">
+                        <h3>User</h3>
+                        <p>Regular user access</p>
+                    </div>
+                    <div class="role-actions">
+                        <button class="btn-role-action"><i class="bi bi-pencil"></i></button>
+                        <button class="btn-role-action"><i class="bi bi-info-circle"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@endsection
 
 @push('styles')
 <style>
+    /* Admin Container */
+    .admin-container {
+        display: flex;
+        width: 100%;
+        min-height: 100vh;
+        position: relative;
+        z-index: 10;
+    }
+    
     /* Main layout */
     .users-page {
         padding: 24px;
@@ -342,7 +353,6 @@
         border-radius: 12px;
         padding: 24px;
         margin-bottom: 24px;
-        margin-left: 250px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
     

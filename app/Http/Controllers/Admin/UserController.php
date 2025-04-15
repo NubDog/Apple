@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -45,14 +46,23 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'is_admin' => 'boolean',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $user = User::create([
+        $userData = [
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->has('is_admin') ? 'admin' : 'user',
-        ]);
+        ];
+
+        // Handle profile image upload
+        if ($request->hasFile('profile_image')) {
+            $imagePath = $request->file('profile_image')->store('profile-images', 'public');
+            $userData['profile_image'] = $imagePath;
+        }
+
+        $user = User::create($userData);
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User created successfully');
@@ -88,6 +98,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
             'is_admin' => 'boolean',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $data = [
@@ -95,6 +106,18 @@ class UserController extends Controller
             'email' => $request->email,
             'role' => $request->has('is_admin') ? 'admin' : 'user',
         ];
+
+        // Handle profile image upload
+        if ($request->hasFile('profile_image')) {
+            // Delete old image if exists
+            if ($user->profile_image) {
+                Storage::disk('public')->delete($user->profile_image);
+            }
+            
+            // Store new image
+            $imagePath = $request->file('profile_image')->store('profile-images', 'public');
+            $data['profile_image'] = $imagePath;
+        }
 
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
