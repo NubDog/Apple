@@ -107,7 +107,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     
     // Admin Contact management
     Route::resource('contacts', AdminContactController::class, ['as' => 'admin']);
-    Route::post('/contacts/{contact}/reply', [AdminContactController::class, 'reply'])->name('admin.contacts.reply');
+    Route::get('/contacts/{contact}/reply', [AdminContactController::class, 'replyForm'])->name('admin.contacts.reply');
+    Route::post('/contacts/{contact}/send-reply', [AdminContactController::class, 'sendReply'])->name('admin.contacts.send-reply');
+    Route::patch('/contacts/{contact}/update-status', [AdminContactController::class, 'updateStatus'])->name('admin.contacts.update-status');
     
     // Admin Coupon management
     Route::resource('coupons', AdminCouponController::class, ['as' => 'admin']);

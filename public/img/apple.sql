@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 15, 2025 lúc 11:09 AM
+-- Thời gian đã tạo: Th4 15, 2025 lúc 01:53 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -249,7 +249,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (9, '2025_04_14_141206_create_order_items_table', 1),
 (10, '2025_04_15_045713_add_profile_image_to_users_table', 2),
 (11, '2025_04_15_084319_add_shipping_method_to_orders_table', 3),
-(12, '2025_04_15_084958_add_shipping_method_column_to_orders_table', 4);
+(12, '2025_04_15_084958_add_shipping_method_column_to_orders_table', 4),
+(13, '2025_04_15_091315_add_favorites_to_users_table', 5);
 
 -- --------------------------------------------------------
 
@@ -300,7 +301,8 @@ INSERT INTO `orders` (`id`, `user_id`, `status`, `total`, `subtotal`, `tax`, `sh
 (15, 12, 'new', 105125.00, 116000.00, 0.00, 25000.00, 35875.00, 'SUMMER25', 'Admin', 'test@gmail.com', '123456789', 'gdsgdsgs', 'shopee_express', 'testzxij;zfjjjgxjigtij;gổiiewoowaokpawokawpkorfhujej;rưk[\r\nrưhjohwrjo[ửhoj[hrnr;hml', 'momo', '2025-04-15 01:59:18', '2025-04-15 01:59:18'),
 (16, 12, 'new', 105125.00, 116000.00, 0.00, 25000.00, 35875.00, 'SUMMER25', 'Admin', 'test@gmail.com', '123456789', 'gdsgdsgs', 'shopee_express', 'testzxij;zfjjjgxjigtij;gổiiewoowaokpawokawpkorfhujej;rưk[\r\nrưhjohwrjo[ửhoj[hrnr;hml', 'momo', '2025-04-15 02:02:06', '2025-04-15 02:02:06'),
 (17, 12, 'new', 161500.00, 131500.00, 0.00, 30000.00, 0.00, NULL, 'Admin', 'test@gmail.com', '654654456546456', 'jugjgjgjgfj', 'viettel_post', 'gsysrethjtsweEW', 'cod', '2025-04-15 02:03:14', '2025-04-15 02:03:14'),
-(18, 12, 'new', 153000.00, 113000.00, 0.00, 40000.00, 0.00, NULL, 'Admin', 'test@gmail.com', '654654456546456', 'jugjgjgjgfj', 'self_transport', 'fgagrgGERGAE', 'momo', '2025-04-15 02:07:23', '2025-04-15 02:07:23');
+(18, 12, 'new', 153000.00, 113000.00, 0.00, 40000.00, 0.00, NULL, 'Admin', 'test@gmail.com', '654654456546456', 'jugjgjgjgfj', 'self_transport', 'fgagrgGERGAE', 'momo', '2025-04-15 02:07:23', '2025-04-15 02:07:23'),
+(19, 12, 'processing', 95500.00, 55500.00, 0.00, 40000.00, 0.00, NULL, 'Admin', 'nguyenquangson.270804@gmail.com', '0328762390', 'test', 'self_transport', 'đơn này dùng để test', 'vnpay', '2025-04-15 03:18:34', '2025-04-15 03:20:05');
 
 -- --------------------------------------------------------
 
@@ -361,7 +363,9 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `product_name`, `pric
 (34, 17, 16, 'Ford Mustang Mach-E', 52000.00, 1, 52000.00, '2025-04-15 02:03:14', '2025-04-15 02:03:14'),
 (35, 18, 4, 'Toyota RAV4', 29500.00, 2, 59000.00, '2025-04-15 02:07:23', '2025-04-15 02:07:23'),
 (36, 18, 3, 'Nissan Altima', 24000.00, 1, 24000.00, '2025-04-15 02:07:23', '2025-04-15 02:07:23'),
-(37, 18, 15, 'Nissan Leaf', 30000.00, 1, 30000.00, '2025-04-15 02:07:23', '2025-04-15 02:07:23');
+(37, 18, 15, 'Nissan Leaf', 30000.00, 1, 30000.00, '2025-04-15 02:07:23', '2025-04-15 02:07:23'),
+(38, 19, 2, 'Honda Accord', 27500.00, 1, 27500.00, '2025-04-15 03:18:34', '2025-04-15 03:18:34'),
+(39, 19, 1, 'Toyota Camry', 28000.00, 1, 28000.00, '2025-04-15 03:18:34', '2025-04-15 03:18:34');
 
 -- --------------------------------------------------------
 
@@ -405,8 +409,8 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `category_id`, `name`, `slug`, `description`, `details`, `price`, `sale_price`, `quantity`, `image`, `images`, `featured`, `is_new`, `on_sale`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Toyota Camry', 'toyota-camry', 'The reliable and comfortable Toyota Camry sedan', 'Engine: 2.5L 4-cylinder, Transmission: 8-speed automatic, MPG: 29 city / 41 highway', 28000.00, 26500.00, 12, 'products/FLMcFXIGp33qmDHsWaX6ln1OlLNieyzjQ9V2ZDgT.jpg', NULL, 1, 0, 0, '2025-04-14 07:50:32', '2025-04-15 02:03:14'),
-(2, 1, 'Honda Accord', 'honda-accord', 'The stylish and efficient Honda Accord sedan', 'Engine: 1.5L Turbo 4-cylinder, Transmission: CVT, MPG: 30 city / 38 highway', 27500.00, NULL, 11, 'products/vWDXn6ICFYFAIK4sjCpzlahrFss2J0SLGiAdDmVu.jpg', NULL, 1, 0, 0, '2025-04-14 07:50:32', '2025-04-15 02:03:14'),
+(1, 1, 'Toyota Camry', 'toyota-camry', 'The reliable and comfortable Toyota Camry sedan', 'Engine: 2.5L 4-cylinder, Transmission: 8-speed automatic, MPG: 29 city / 41 highway', 28000.00, 26500.00, 11, 'products/FLMcFXIGp33qmDHsWaX6ln1OlLNieyzjQ9V2ZDgT.jpg', NULL, 1, 0, 0, '2025-04-14 07:50:32', '2025-04-15 03:18:34'),
+(2, 1, 'Honda Accord', 'honda-accord', 'The stylish and efficient Honda Accord sedan', 'Engine: 1.5L Turbo 4-cylinder, Transmission: CVT, MPG: 30 city / 38 highway', 27500.00, NULL, 10, 'products/vWDXn6ICFYFAIK4sjCpzlahrFss2J0SLGiAdDmVu.jpg', NULL, 1, 0, 0, '2025-04-14 07:50:32', '2025-04-15 03:18:34'),
 (3, 1, 'Nissan Altima', 'nissan-altima', 'The comfortable and affordable Nissan Altima sedan', 'Engine: 2.5L 4-cylinder, Transmission: CVT, MPG: 28 city / 39 highway', 25500.00, 24000.00, 6, 'products/URMaJXf95NcvA9LL8VaC3cx97MPGqPpIxuFf4sQY.jpg', NULL, 1, 0, 1, '2025-04-14 07:50:32', '2025-04-15 02:07:23'),
 (4, 2, 'Toyota RAV4', 'toyota-rav4', 'The versatile and capable Toyota RAV4 SUV', 'Engine: 2.5L 4-cylinder, Transmission: 8-speed automatic, MPG: 27 city / 35 highway', 31000.00, 29500.00, 8, 'products/CUEKBllC7zAroX0u00g6E2e0PYZKns1Hr3rGPihU.jpg', NULL, 1, 1, 1, '2025-04-14 07:50:32', '2025-04-15 02:07:23'),
 (5, 2, 'Honda CR-V', 'honda-cr-v', 'The spacious and reliable Honda CR-V SUV', 'Engine: 1.5L Turbo 4-cylinder, Transmission: CVT, MPG: 28 city / 34 highway', 32000.00, NULL, 9, 'products/ZYgO626IvOjV09y2H8ydw3ygfQhyQvKYqrJdMqHy.jpg', NULL, 0, 1, 0, '2025-04-14 07:50:32', '2025-04-14 19:40:57'),
@@ -459,7 +463,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('6FrchERdwlXjbEH3EH9rSaoe9FNLolZnH1BPB9rv', 12, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiRE14Qm9IVDJkb0tKU0Mzd3E5bHBFZ2IyUFVtb1QxSm9aZGY2dDhwMSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czo0MToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2FkbWluL3VzZXJzLzEzL2VkaXQiO31zOjk6Il9wcmV2aW91cyI7YToxOntzOjM6InVybCI7czozMToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2Zhdm9yaXRlcyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjEyO30=', 1744708070);
+('6FrchERdwlXjbEH3EH9rSaoe9FNLolZnH1BPB9rv', 12, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiRE14Qm9IVDJkb0tKU0Mzd3E5bHBFZ2IyUFVtb1QxSm9aZGY2dDhwMSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czo0MToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2FkbWluL3VzZXJzLzEzL2VkaXQiO31zOjk6Il9wcmV2aW91cyI7YToxOntzOjM6InVybCI7czo0NDoiaHR0cDovLzEyNy4wLjAuMTo4MDAwL3Byb2R1Y3RzL25pc3Nhbi1hbHRpbWEiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxMjtzOjQ6ImNhcnQiO2E6Mjp7aToyO2E6NTp7czoyOiJpZCI7aToyO3M6NDoibmFtZSI7czoxMjoiSG9uZGEgQWNjb3JkIjtzOjU6InByaWNlIjtzOjg6IjI3NTAwLjAwIjtzOjg6InF1YW50aXR5IjtzOjE6IjEiO3M6NToiaW1hZ2UiO3M6NjE6InN0b3JhZ2UvcHJvZHVjdHMvdldEWG42SUNGWUZBSUs0c2pDcHpsYWhyRnNzMkowU0xHaUFkRG1WdS5qcGciO31pOjM7YTo1OntzOjI6ImlkIjtpOjM7czo0OiJuYW1lIjtzOjEzOiJOaXNzYW4gQWx0aW1hIjtzOjU6InByaWNlIjtzOjg6IjI0MDAwLjAwIjtzOjg6InF1YW50aXR5IjtzOjE6IjEiO3M6NToiaW1hZ2UiO3M6NjE6InN0b3JhZ2UvcHJvZHVjdHMvVVJNYUpYZjk1TmN2QTlMTDhWYUMzY3g5N01QR3FQcEl4dUZmNHNRWS5qcGciO319fQ==', 1744717792);
 
 -- --------------------------------------------------------
 
@@ -503,6 +507,7 @@ CREATE TABLE `users` (
   `profile_image` varchar(255) DEFAULT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `password` varchar(255) NOT NULL,
+  `favorites` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`favorites`)),
   `remember_token` varchar(100) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -515,20 +520,20 @@ CREATE TABLE `users` (
 -- Đang đổ dữ liệu cho bảng `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `profile_image`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`, `role`, `phone`, `address`) VALUES
-(1, 'Admin User', 'admin@example.com', 'profile-images/JE1WF77UJkY7MGYAhbGveXTwmvbgHwa8dPF3zZ3w.jpg', NULL, '$2y$12$AnJ4QLXDAalQ6UpiF9q3L.CST31jF8EnRU4gg18WLsgnczIj0I..2', NULL, '2025-04-14 07:50:30', '2025-04-14 22:25:28', 'admin', '1234567890', '123 Admin Street, Admin City'),
-(2, 'User 1', 'user1@example.com', 'profile-images/1h5gukH3QiwPWSCeqnzByN0dw5H5fqyOVIPkN9L1.jpg', NULL, '$2y$12$pAhOEhh2GQ./iMln1asZG.EhYst.atmJrDFXEArU3YB9oMSuYb9ea', NULL, '2025-04-14 07:50:30', '2025-04-14 22:42:35', 'user', '9876543211', '1 User Street, User City'),
-(3, 'User 2', 'user2@example.com', NULL, NULL, '$2y$12$iVqjUNblQuzqyhycblkNGeYSPmxiIC1EeuGYrb28KqLS1fzuuD7qG', NULL, '2025-04-14 07:50:30', '2025-04-14 07:50:30', 'user', '9876543212', '2 User Street, User City'),
-(4, 'User 3', 'user3@example.com', NULL, NULL, '$2y$12$a3poVcgb/.vmBcxF1ZDP7eK1JYBwxGT3Vw6kcNPGbXAuuaveHTE0K', NULL, '2025-04-14 07:50:30', '2025-04-14 07:50:30', 'user', '9876543213', '3 User Street, User City'),
-(5, 'User 4', 'user4@example.com', 'profile-images/vYY91JxVvQ28KWAiorRoMycnVjhaz5ivkzrdWcBu.jpg', NULL, '$2y$12$bfJA8CH4zcHGGfdoWAADJeDvi2Vdsh4jAIiGgalEx6y21xGz2Vzjy', NULL, '2025-04-14 07:50:31', '2025-04-14 22:23:22', 'user', '9876543214', '4 User Street, User City'),
-(6, 'User 5', 'user5@example.com', 'profile-images/b9ryl3MxagBZlYXPwP5TQp8UVY88OjOKUzYq245B.jpg', NULL, '$2y$12$TXG2cnF6pdIHAUdvbvgSQO2VEMu4.MlGjaAF1qYf4svhz07hlov7S', NULL, '2025-04-14 07:50:31', '2025-04-14 22:23:33', 'user', '9876543215', '5 User Street, User City'),
-(7, 'User 6', 'user6@example.com', 'profile-images/Vb8S0jPW86HPETt9vfrQyy9p9KYw4b0UC7UEAdCe.jpg', NULL, '$2y$12$qcgMXuWyQy8bqcXz9vN1N.6SmIfJflLQimRQ5R6Zu4bmXCbvA1uk2', NULL, '2025-04-14 07:50:31', '2025-04-14 22:24:31', 'user', '9876543216', '6 User Street, User City'),
-(8, 'User 7', 'user7@example.com', 'profile-images/ozFhlXML3P2gAqvPFlswLUXmGC87RcvZ2yN0lyvS.jpg', NULL, '$2y$12$lsLfUu9c1RV1AcypTbMUju1/Goggo3.SV6OeJoDCBWkfb/0x/lZJ2', NULL, '2025-04-14 07:50:31', '2025-04-14 22:24:46', 'user', '9876543217', '7 User Street, User City'),
-(9, 'Trần Hoàng Dịu Lan', 'user8@example.com', 'profile-images/wJOZYFnzXNCxEJ65qYtHgBjNzXjPEIFtbhhEtRKC.png', NULL, '$2y$12$8EezRPH1i2//hJbZacXdmunTyGcu7TKaSiRHK9XwfOk0LME0DC1g.', NULL, '2025-04-14 07:50:32', '2025-04-14 22:21:54', 'user', '9876543218', '8 User Street, User City'),
-(10, 'User 9', 'user9@example.com', 'profile-images/K4rAHcOvwg8eluTPB1NU7Wkdkz8valr74U3hPn1e.jpg', NULL, '$2y$12$2SG/hyNdzQCQf4BhFxmF/.xkL.kN84YiRcobBzAMdQuDMx9q74D72', NULL, '2025-04-14 07:50:32', '2025-04-14 22:22:59', 'user', '9876543219', '9 User Street, User City'),
-(12, 'Admin', 'test@gmail.com', 'profile-images/Hvl3TkRtyvPQ0uU9BcnaR3nPCZPGOFoLqo6M4jdI.png', NULL, '$2y$12$OScugcojzPxvJ44WASTukuO5.cVU/p1pF96mpSAaq3a2vJdSwuMXe', 'q5DC7IJMCTbl7DxAepVDdjYeCoNnh31LIUaqrsGW0JCW4MrAYEnnIN7dVSWH', '2025-04-14 10:02:19', '2025-04-14 22:21:26', 'admin', NULL, NULL),
-(13, 'Nguyễn Trần Linh Hương', 'concactaone@gmail.com', 'profile-images/3L5LcB65zYU5gAJyO95wjoZjxOf22gbNBcnJRXYk.png', NULL, '$2y$12$eb7pZqQjgsMCrZ1Sak1b/utBDNoxJxVeFqIBETf0Al2vDV73gZrDa', 'j99JcKdKLgz6A4DE5ojdhvCQOmNWBxZwoUfIsBpRbqnsx7G3d1DGduQBZr3z', '2025-04-14 20:12:30', '2025-04-14 22:21:03', 'user', NULL, NULL),
-(14, 'Linh Lộc Ngự Tiền', 'linhloc@gmail.com', 'profile-images/PpIrZKiOvhnS5e7RUl5fwLQCONFET0QjbjLOU3et.png', NULL, '$2y$12$QE0w5m2vaSBrMfbetzMB..FnGAjgh5bicdBKpPrLMgtSO9cLnoumu', NULL, '2025-04-14 22:45:13', '2025-04-14 22:45:13', 'user', NULL, NULL);
+INSERT INTO `users` (`id`, `name`, `email`, `profile_image`, `email_verified_at`, `password`, `favorites`, `remember_token`, `created_at`, `updated_at`, `role`, `phone`, `address`) VALUES
+(1, 'Admin User', 'admin@example.com', 'profile-images/JE1WF77UJkY7MGYAhbGveXTwmvbgHwa8dPF3zZ3w.jpg', NULL, '$2y$12$AnJ4QLXDAalQ6UpiF9q3L.CST31jF8EnRU4gg18WLsgnczIj0I..2', NULL, NULL, '2025-04-14 07:50:30', '2025-04-14 22:25:28', 'admin', '1234567890', '123 Admin Street, Admin City'),
+(2, 'User 1', 'user1@example.com', 'profile-images/1h5gukH3QiwPWSCeqnzByN0dw5H5fqyOVIPkN9L1.jpg', NULL, '$2y$12$pAhOEhh2GQ./iMln1asZG.EhYst.atmJrDFXEArU3YB9oMSuYb9ea', NULL, NULL, '2025-04-14 07:50:30', '2025-04-14 22:42:35', 'user', '9876543211', '1 User Street, User City'),
+(3, 'User 2', 'user2@example.com', NULL, NULL, '$2y$12$iVqjUNblQuzqyhycblkNGeYSPmxiIC1EeuGYrb28KqLS1fzuuD7qG', NULL, NULL, '2025-04-14 07:50:30', '2025-04-14 07:50:30', 'user', '9876543212', '2 User Street, User City'),
+(4, 'User 3', 'user3@example.com', NULL, NULL, '$2y$12$a3poVcgb/.vmBcxF1ZDP7eK1JYBwxGT3Vw6kcNPGbXAuuaveHTE0K', NULL, NULL, '2025-04-14 07:50:30', '2025-04-14 07:50:30', 'user', '9876543213', '3 User Street, User City'),
+(5, 'User 4', 'user4@example.com', 'profile-images/vYY91JxVvQ28KWAiorRoMycnVjhaz5ivkzrdWcBu.jpg', NULL, '$2y$12$bfJA8CH4zcHGGfdoWAADJeDvi2Vdsh4jAIiGgalEx6y21xGz2Vzjy', NULL, NULL, '2025-04-14 07:50:31', '2025-04-14 22:23:22', 'user', '9876543214', '4 User Street, User City'),
+(6, 'User 5', 'user5@example.com', 'profile-images/b9ryl3MxagBZlYXPwP5TQp8UVY88OjOKUzYq245B.jpg', NULL, '$2y$12$TXG2cnF6pdIHAUdvbvgSQO2VEMu4.MlGjaAF1qYf4svhz07hlov7S', NULL, NULL, '2025-04-14 07:50:31', '2025-04-14 22:23:33', 'user', '9876543215', '5 User Street, User City'),
+(7, 'User 6', 'user6@example.com', 'profile-images/Vb8S0jPW86HPETt9vfrQyy9p9KYw4b0UC7UEAdCe.jpg', NULL, '$2y$12$qcgMXuWyQy8bqcXz9vN1N.6SmIfJflLQimRQ5R6Zu4bmXCbvA1uk2', NULL, NULL, '2025-04-14 07:50:31', '2025-04-14 22:24:31', 'user', '9876543216', '6 User Street, User City'),
+(8, 'User 7', 'user7@example.com', 'profile-images/ozFhlXML3P2gAqvPFlswLUXmGC87RcvZ2yN0lyvS.jpg', NULL, '$2y$12$lsLfUu9c1RV1AcypTbMUju1/Goggo3.SV6OeJoDCBWkfb/0x/lZJ2', NULL, NULL, '2025-04-14 07:50:31', '2025-04-14 22:24:46', 'user', '9876543217', '7 User Street, User City'),
+(9, 'Trần Hoàng Dịu Lan', 'user8@example.com', 'profile-images/wJOZYFnzXNCxEJ65qYtHgBjNzXjPEIFtbhhEtRKC.png', NULL, '$2y$12$8EezRPH1i2//hJbZacXdmunTyGcu7TKaSiRHK9XwfOk0LME0DC1g.', NULL, NULL, '2025-04-14 07:50:32', '2025-04-14 22:21:54', 'user', '9876543218', '8 User Street, User City'),
+(10, 'User 9', 'user9@example.com', 'profile-images/K4rAHcOvwg8eluTPB1NU7Wkdkz8valr74U3hPn1e.jpg', NULL, '$2y$12$2SG/hyNdzQCQf4BhFxmF/.xkL.kN84YiRcobBzAMdQuDMx9q74D72', NULL, NULL, '2025-04-14 07:50:32', '2025-04-14 22:22:59', 'user', '9876543219', '9 User Street, User City'),
+(12, 'Admin', 'test@gmail.com', 'profile-images/Hvl3TkRtyvPQ0uU9BcnaR3nPCZPGOFoLqo6M4jdI.png', NULL, '$2y$12$OScugcojzPxvJ44WASTukuO5.cVU/p1pF96mpSAaq3a2vJdSwuMXe', NULL, 'q5DC7IJMCTbl7DxAepVDdjYeCoNnh31LIUaqrsGW0JCW4MrAYEnnIN7dVSWH', '2025-04-14 10:02:19', '2025-04-14 22:21:26', 'admin', NULL, NULL),
+(13, 'Nguyễn Trần Linh Hương', 'concactaone@gmail.com', 'profile-images/3L5LcB65zYU5gAJyO95wjoZjxOf22gbNBcnJRXYk.png', NULL, '$2y$12$eb7pZqQjgsMCrZ1Sak1b/utBDNoxJxVeFqIBETf0Al2vDV73gZrDa', NULL, 'j99JcKdKLgz6A4DE5ojdhvCQOmNWBxZwoUfIsBpRbqnsx7G3d1DGduQBZr3z', '2025-04-14 20:12:30', '2025-04-14 22:21:03', 'user', NULL, NULL),
+(14, 'Linh Lộc Ngự Tiền', 'linhloc@gmail.com', 'profile-images/PpIrZKiOvhnS5e7RUl5fwLQCONFET0QjbjLOU3et.png', NULL, '$2y$12$QE0w5m2vaSBrMfbetzMB..FnGAjgh5bicdBKpPrLMgtSO9cLnoumu', NULL, NULL, '2025-04-14 22:45:13', '2025-04-14 22:45:13', 'user', NULL, NULL);
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -684,19 +689,19 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT cho bảng `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT cho bảng `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT cho bảng `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT cho bảng `products`
