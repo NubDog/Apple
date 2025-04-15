@@ -43,10 +43,12 @@ Route::get('/category/{slug}', [ProductController::class, 'category'])->name('ca
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
-Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+Route::get('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 Route::post('/cart/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.apply.coupon');
+Route::get('/cart/remove-coupon', [CartController::class, 'removeCoupon'])->name('cart.remove-coupon');
 Route::get('/cart/count', [CartController::class, 'getCount'])->name('cart.count');
+Route::get('/cart/fix-images', [CartController::class, 'fixCartImages'])->name('cart.fix-images');
 
 // Contact routes
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');

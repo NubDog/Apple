@@ -41,7 +41,8 @@ class CheckoutController extends Controller
             'shipping_email' => 'required|email|max:255',
             'shipping_phone' => 'required|string|max:20',
             'shipping_address' => 'required|string|max:255',
-            'payment_method' => 'required|in:cod,bank_transfer',
+            'shipping_method' => 'required|string|in:viettel_post,shopee_express,self_pickup,self_transport',
+            'payment_method' => 'required|in:cod,bank_transfer,momo,zalopay,vnpay,credit_card',
             'notes' => 'nullable|string'
         ]);
 
@@ -54,6 +55,29 @@ class CheckoutController extends Controller
         
         // Calculate totals
         $totals = $this->calculateTotals();
+        
+        // Set shipping cost based on selected method
+        $shippingCost = 0;
+        switch ($request->shipping_method) {
+            case 'viettel_post':
+                $shippingCost = 30000;
+                break;
+            case 'shopee_express':
+                $shippingCost = 25000;
+                break;
+            case 'self_transport':
+                $shippingCost = 40000;
+                break;
+            case 'self_pickup':
+                $shippingCost = 0;
+                break;
+            default:
+                $shippingCost = 0;
+        }
+        
+        // Update total with shipping cost
+        $totals['shipping'] = $shippingCost;
+        $totals['total'] = $totals['subtotal'] + $shippingCost + $totals['tax'] - $totals['discount'];
         
         // Create order
         $order = Order::create([
@@ -69,6 +93,7 @@ class CheckoutController extends Controller
             'shipping_email' => $request->shipping_email,
             'shipping_phone' => $request->shipping_phone,
             'shipping_address' => $request->shipping_address,
+            'shipping_method' => $request->shipping_method,
             'notes' => $request->notes,
             'payment_method' => $request->payment_method
         ]);

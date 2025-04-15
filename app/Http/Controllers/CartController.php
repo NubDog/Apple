@@ -14,10 +14,34 @@ class CartController extends Controller
      */
     public function index()
     {
+        // Fix existing cart items to ensure they have the correct image paths
+        $this->fixCartImagePaths();
+        
         $cart = Session::get('cart', []);
         $totals = $this->calculateTotals();
         
         return view('cart.index', compact('cart', 'totals'));
+    }
+
+    /**
+     * Fix cart image paths to ensure correct format
+     */
+    private function fixCartImagePaths()
+    {
+        $cart = Session::get('cart', []);
+        $updated = false;
+        
+        foreach ($cart as $id => $item) {
+            // If the image path doesn't already contain 'storage/', prepend it
+            if (!str_contains($item['image'], 'storage/')) {
+                $cart[$id]['image'] = 'storage/' . $item['image'];
+                $updated = true;
+            }
+        }
+        
+        if ($updated) {
+            Session::put('cart', $cart);
+        }
     }
 
     /**
@@ -42,7 +66,7 @@ class CartController extends Controller
                 'name' => $product->name,
                 'price' => $product->on_sale && $product->sale_price ? $product->sale_price : $product->price,
                 'quantity' => $request->quantity,
-                'image' => $product->image
+                'image' => 'storage/' . $product->image
             ];
         }
 
@@ -130,6 +154,16 @@ class CartController extends Controller
     }
 
     /**
+     * Remove coupon from cart.
+     */
+    public function removeCoupon()
+    {
+        Session::forget('coupon');
+        
+        return redirect()->route('cart.index')->with('success', 'Coupon removed successfully!');
+    }
+
+    /**
      * Calculate the cart total (without shipping or discount).
      */
     private function calculateCartTotal()
@@ -185,5 +219,56 @@ class CartController extends Controller
         }
         
         return response()->json(['count' => $count]);
+    }
+
+    /**
+     * Get all cart data for API.
+     */
+    public function getCartData()
+    {
+        $cart = Session::get('cart', []);
+        $items = [];
+        
+        foreach ($cart as $id => $item) {
+            $items[] = [
+                'id' => $id,
+                'name' => $item['name'],
+                'price' => number_format($item['price'], 0, ',', '.'),
+                'quantity' => $item['quantity'],
+                'image' => asset($item['image'])
+            ];
+        }
+        
+        $totals = $this->calculateTotals();
+        
+        return response()->json([
+            'items' => $items,
+            'totals' => $totals
+        ]);
+    }
+
+    /**
+     * Remove item from cart via API.
+     */
+    public function apiRemoveItem($id)
+    {
+        $cart = Session::get('cart', []);
+        
+        if (isset($cart[$id])) {
+            unset($cart[$id]);
+            Session::put('cart', $cart);
+            return response()->json(['success' => true]);
+        }
+        
+        return response()->json(['success' => false], 404);
+    }
+
+    /**
+     * Fix cart images publicly accessible route
+     */
+    public function fixCartImages()
+    {
+        $this->fixCartImagePaths();
+        return redirect()->route('cart.index')->with('success', 'Cart images fixed!');
     }
 }

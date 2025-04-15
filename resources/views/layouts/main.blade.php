@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title') - Shark Car</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>{{ config('app.name', 'Laravel') }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <style>
         /* Custom styles */
         :root {
@@ -101,6 +102,33 @@
             font-size: 24px;
             margin-right: 15px;
         }
+        
+        .cart-dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .cart-dropdown-menu {
+            margin-top: 0;
+        }
+        .cart-item {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .cart-item-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        .cart-item-details {
+            flex-grow: 1;
+        }
+        .cart-item-price {
+            font-weight: bold;
+        }
+        .cart-item-remove {
+            color: #dc3545;
+            cursor: pointer;
+        }
     </style>
     @stack('styles')
 </head>
@@ -139,9 +167,25 @@
                     <button class="btn btn-secondary" type="submit"><i class="fas fa-search"></i></button>
                 </form>
                 <div class="d-flex">
-                    <a href="{{ route('cart.index') }}" class="btn btn-outline-light me-2">
-                        <i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span>
-                    </a>
+                    <div class="cart-dropdown dropdown">
+                        <a href="{{ route('cart.index') }}" class="btn btn-outline-light me-2 cart-btn" id="cartDropdown">
+                            <i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end cart-dropdown-menu p-3" style="width: 320px; max-height: 450px; overflow-y: auto;">
+                            <div class="cart-dropdown-header d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">Giỏ hàng của bạn</h6>
+                                <span class="badge bg-primary rounded-pill" id="cart-dropdown-count">0</span>
+                            </div>
+                            <div class="cart-items">
+                                <!-- Cart items will be loaded here via JavaScript -->
+                            </div>
+                            <div class="dropdown-divider my-3"></div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ route('cart.index') }}" class="btn btn-primary btn-sm">Xem giỏ hàng</a>
+                                <a href="{{ route('checkout.index') }}" class="btn btn-success btn-sm">Thanh toán</a>
+                            </div>
+                        </div>
+                    </div>
                     @auth
                         <div class="dropdown">
                             <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
@@ -243,18 +287,83 @@
     </footer>
 
     <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Update cart count from session
-            fetch('/cart/count')
+            // Update cart count and dropdown contents
+            function updateCart() {
+                fetch('/api/cart')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update cart count
+                        const cartCount = document.getElementById('cart-count');
+                        const dropdownCount = document.getElementById('cart-dropdown-count');
+                        if (cartCount && dropdownCount) {
+                            const count = data.items ? data.items.length : 0;
+                            cartCount.textContent = count;
+                            dropdownCount.textContent = count;
+                        }
+
+                        // Update dropdown contents
+                        const cartItems = document.querySelector('.cart-items');
+                        if (cartItems) {
+                            if (data.items && data.items.length > 0) {
+                                let html = '';
+                                data.items.forEach(item => {
+                                    html += `
+                                        <div class="cart-item">
+                                            <img src="${item.image}" alt="${item.name}" class="cart-item-image" onerror="this.src='/images/no-image.jpg'">
+                                            <div class="cart-item-details">
+                                                <div class="cart-item-name">${item.name}</div>
+                                                <div class="d-flex justify-content-between">
+                                                    <div class="cart-item-quantity">SL: ${item.quantity}</div>
+                                                    <div class="cart-item-price">${item.price} đ</div>
+                                                </div>
+                                            </div>
+                                            <div class="cart-item-remove" data-id="${item.id}">
+                                                <i class="fas fa-times"></i>
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                                cartItems.innerHTML = html;
+
+                                // Add event listeners for remove buttons
+                                document.querySelectorAll('.cart-item-remove').forEach(btn => {
+                                    btn.addEventListener('click', function(e) {
+                                        e.preventDefault();
+                                        const id = this.getAttribute('data-id');
+                                        removeFromCart(id);
+                                    });
+                                });
+                            } else {
+                                cartItems.innerHTML = '<p class="text-center text-muted">Giỏ hàng trống</p>';
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error updating cart:', error));
+            }
+
+            // Remove item from cart
+            function removeFromCart(id) {
+                fetch(`/api/cart/remove/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json'
+                    }
+                })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('cart-count').textContent = data.count;
+                    updateCart();
                 })
-                .catch(error => console.error('Error fetching cart count:', error));
+                .catch(error => console.error('Error removing item:', error));
+            }
+
+            // Initial cart update
+            updateCart();
         });
     </script>
     

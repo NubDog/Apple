@@ -29,6 +29,7 @@ class Order extends Model
         'shipping_email',
         'shipping_phone',
         'shipping_address',
+        'shipping_method',
         'notes',
         'payment_method'
     ];
