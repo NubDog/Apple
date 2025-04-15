@@ -39,12 +39,13 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'user', // Default role is 'user'
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('user.account', absolute: false));
+        return redirect(route('home'));
     }
 }
