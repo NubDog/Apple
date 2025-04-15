@@ -251,13 +251,13 @@
     
     .favorite-details {
         padding: 20px;
-        flex-grow: 1;
         display: flex;
         flex-direction: column;
+        flex-grow: 1;
     }
     
     .favorite-name {
-        font-size: 1.25rem;
+        font-size: 1.2rem;
         font-weight: 600;
         margin-bottom: 8px;
         color: #333;
@@ -271,177 +271,56 @@
     
     .product-features {
         display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
+        justify-content: space-between;
         margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
     }
     
     .feature {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        font-size: 0.85rem;
-        color: #666;
+        text-align: center;
     }
     
     .feature i {
-        margin-right: 5px;
-        color: #4070f4;
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 5px;
+    }
+    
+    .feature span {
+        font-size: 12px;
+        color: #777;
     }
     
     .favorite-price {
         margin-bottom: 20px;
         display: flex;
         align-items: center;
-        gap: 10px;
     }
     
     .current-price {
-        font-size: 1.3rem;
+        font-size: 1.5rem;
         font-weight: 700;
-        color: #ff5757;
+        color: #333;
     }
     
     .old-price {
-        text-decoration: line-through;
+        font-size: 1.1rem;
         color: #999;
-        font-size: 1rem;
+        text-decoration: line-through;
+        margin-right: 10px;
     }
     
     .favorite-actions {
         margin-top: auto;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        display: flex;
         gap: 10px;
     }
     
-    .favorite-actions .btn {
-        padding: 8px 15px;
-        border-radius: 8px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .favorite-actions .btn:hover {
-        transform: translateY(-3px);
-    }
-    
-    .favorite-actions .btn-primary {
-        background-color: #4070f4;
-        border-color: #4070f4;
-    }
-    
-    .favorite-actions .btn-primary:hover {
-        background-color: #3060e0;
-        border-color: #3060e0;
-    }
-    
-    .favorite-actions .btn-outline-primary {
-        color: #4070f4;
-        border-color: #4070f4;
-    }
-    
-    .favorite-actions .btn-outline-primary:hover {
-        background-color: #4070f4;
-        color: white;
-    }
-    
-    @media (max-width: 992px) {
-        .favorite-actions {
-            grid-template-columns: 1fr;
-        }
-    }
-    
-    /* Animation classes */
-    .animate__fadeInUp {
-        animation-duration: 0.6s;
-    }
-    
-    .animate__fadeIn {
-        animation-duration: 1s;
-    }
-</style>
-@endpush
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle remove favorite buttons
-        document.querySelectorAll('.remove-favorite').forEach(button => {
-            button.addEventListener('click', function() {
-                const productId = this.dataset.productId;
-                const card = this.closest('.product-card');
-                
-                // Confirm before removing
-                if (confirm('Bạn có chắc muốn xóa xe này khỏi danh sách yêu thích?')) {
-                    removeFavorite(productId, card);
-                }
-            });
-        });
-        
-        function removeFavorite(productId, card) {
-            fetch('{{ route("favorites.toggle") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ product_id: productId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'removed') {
-                    // Add animation before removing
-                    card.classList.add('animate__animated', 'animate__fadeOutRight');
-                    
-                    // Remove the card after animation completes
-                    setTimeout(() => {
-                        card.remove();
-                        
-                        // Check if there are no more favorites
-                        if (document.querySelectorAll('.product-card').length === 0) {
-                            location.reload(); // Reload to show empty state
-                        }
-                    }, 500);
-                    
-                    // Show notification
-                    showNotification('Đã xóa khỏi danh sách yêu thích', 'success');
-                }
-            })
-            .catch(error => {
-                console.error('Error removing favorite:', error);
-                showNotification('Đã xảy ra lỗi. Vui lòng thử lại.', 'error');
-            });
-        }
-        
-        function showNotification(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast-notification toast-${type}`;
-            toast.innerHTML = `
-                <div class="toast-icon">
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
-                </div>
-                <div class="toast-message">${message}</div>
-            `;
-            
-            document.body.appendChild(toast);
-            
-            // Trigger animation
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 10);
-            
-            // Remove after 3 seconds
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    document.body.removeChild(toast);
-                }, 300);
-            }, 3000);
-        }
-    });
-</script>
-
-<style>
+    /* Toast styles */
     .toast-notification {
         position: fixed;
         top: 20px;
@@ -499,4 +378,93 @@
         font-weight: 500;
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        // Get CSRF token
+        const csrfToken = $('meta[name="csrf-token"]').attr('content');
+        
+        // Handle removing favorites
+        $('.remove-favorite').on('click', function() {
+            const button = $(this);
+            const productId = button.data('product-id');
+            const card = button.closest('.product-card');
+            
+            // Add loading state
+            button.html('<i class="fas fa-spinner fa-spin"></i>');
+            button.prop('disabled', true);
+            
+            // Send AJAX request to remove from favorites
+            $.ajax({
+                url: "{{ route('favorites.toggle') }}",
+                type: 'POST',
+                data: {
+                    _token: csrfToken,
+                    product_id: productId
+                },
+                success: function(response) {
+                    if (response.status === 'removed') {
+                        // Animate removal
+                        card.addClass('animate__animated animate__fadeOutRight');
+                        
+                        // Remove element after animation
+                        setTimeout(function() {
+                            card.remove();
+                            
+                            // Check if there are no more favorites
+                            if ($('.product-card').length === 0) {
+                                location.reload(); // Reload to show empty state
+                            }
+                        }, 500);
+                        
+                        // Show toast notification
+                        showToast('Đã xóa khỏi danh sách yêu thích', 'info');
+                    }
+                },
+                error: function() {
+                    // Restore button state
+                    button.html('<i class="fas fa-times"></i>');
+                    button.prop('disabled', false);
+                    
+                    // Show error toast
+                    showToast('Có lỗi xảy ra khi xóa sản phẩm khỏi yêu thích', 'error');
+                }
+            });
+        });
+        
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            // Create toast container if it doesn't exist
+            if ($('#toast-container').length === 0) {
+                $('body').append('<div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>');
+            }
+            
+            // Create toast element
+            const toast = $('<div class="toast-notification toast-' + type + '">' +
+                '<div class="toast-icon"><i class="fas fa-' + 
+                (type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle') + 
+                '"></i></div>' +
+                '<div class="toast-message">' + message + '</div>' +
+                '</div>');
+            
+            // Add to container
+            $('#toast-container').append(toast);
+            
+            // Trigger animation
+            setTimeout(function() {
+                toast.addClass('show');
+            }, 10);
+            
+            // Remove after delay
+            setTimeout(function() {
+                toast.removeClass('show');
+                setTimeout(function() {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+    });
+</script>
 @endpush 

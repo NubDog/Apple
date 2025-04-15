@@ -25,7 +25,8 @@ class User extends Authenticatable
         'role',
         'phone',
         'address',
-        'profile_image'
+        'profile_image',
+        'favorites'
     ];
 
     /**
@@ -48,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'favorites' => 'array',
         ];
     }
 
@@ -83,5 +85,57 @@ class User extends Authenticatable
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get favorite product IDs from favorites JSON column
+     * 
+     * @return array
+     */
+    public function getFavoriteIds(): array
+    {
+        return $this->favorites ?? [];
+    }
+
+    /**
+     * Add a product ID to favorites JSON column
+     * 
+     * @param int $productId
+     * @return void
+     */
+    public function addFavorite(int $productId): void
+    {
+        $favorites = $this->getFavoriteIds();
+        if (!in_array($productId, $favorites)) {
+            $favorites[] = $productId;
+            $this->favorites = $favorites;
+            $this->save();
+        }
+    }
+
+    /**
+     * Remove a product ID from favorites JSON column
+     * 
+     * @param int $productId
+     * @return void
+     */
+    public function removeFavorite(int $productId): void
+    {
+        $favorites = $this->getFavoriteIds();
+        $this->favorites = array_values(array_filter($favorites, function($id) use ($productId) {
+            return $id != $productId;
+        }));
+        $this->save();
+    }
+
+    /**
+     * Check if a product ID is in favorites JSON column
+     * 
+     * @param int $productId
+     * @return bool
+     */
+    public function hasFavorite(int $productId): bool
+    {
+        return in_array($productId, $this->getFavoriteIds());
     }
 }

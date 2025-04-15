@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'facebook' => [
+        'page_id' => env('FACEBOOK_PAGE_ID', '101178085091616'),
+    ],
+
 ];

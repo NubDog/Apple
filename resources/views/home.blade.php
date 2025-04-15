@@ -920,9 +920,146 @@
         </div>
     </footer>
 
+    <!-- Toast Notification Container -->
+    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
     <!-- Messenger Chat Plugin -->
     <div id="fb-root"></div>
     <div id="fb-customer-chat" class="fb-customerchat"></div>
+
+    <!-- jQuery - Load First -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap Bundle with Popper - Load Second -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Wishlist functionality -->
+    <div id="auth-data" data-logged-in="{{ auth()->check() ? 'true' : 'false' }}" style="display: none;"></div>
+    <script>
+        $(document).ready(function() {
+            // Set up variables from PHP
+            const isLoggedIn = $("#auth-data").data("logged-in") === "true";
+            const loginUrl = "{{ route('login') }}";
+            const toggleUrl = "{{ route('favorites.toggle') }}";
+            const checkUrl = "{{ route('favorites.check') }}";
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            
+            // Initialize wishlist buttons
+            loadWishlistStatus();
+            
+            // Handle wishlist button clicks
+            $(document).on('click', '.wishlist-btn', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (isLoggedIn) {
+                    var button = $(this);
+                    var productId = button.data('product-id');
+                    
+                    // Disable button temporarily
+                    button.css('pointer-events', 'none');
+                    
+                    // Send AJAX request using form data
+                    $.ajax({
+                        url: toggleUrl,
+                        type: 'POST',
+                        data: {
+                            _token: csrfToken,
+                            product_id: productId
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            // Update button appearance
+                            if (response.status === 'added') {
+                                button.addClass('active');
+                                button.find('i').removeClass('far').addClass('fas');
+                                showToast('Đã thêm vào danh sách yêu thích', 'success');
+                            } else {
+                                button.removeClass('active');
+                                button.find('i').removeClass('fas').addClass('far');
+                                showToast('Đã xóa khỏi danh sách yêu thích', 'info');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Wishlist error:', error);
+                            showToast('Đã xảy ra lỗi khi cập nhật yêu thích', 'error');
+                        },
+                        complete: function() {
+                            // Re-enable button
+                            button.css('pointer-events', 'auto');
+                        }
+                    });
+                } else {
+                    window.location.href = loginUrl;
+                }
+            });
+            
+            // Function to load wishlist status
+            function loadWishlistStatus() {
+                if (!isLoggedIn) return;
+                
+                // Extract product IDs from wishlist buttons
+                var productIds = [];
+                $('.wishlist-btn').each(function() {
+                    productIds.push($(this).data('product-id'));
+                });
+                
+                if (productIds.length === 0) return;
+                
+                // Get wishlist status for all products
+                $.ajax({
+                    url: checkUrl,
+                    type: 'POST',
+                    data: {
+                        _token: csrfToken,
+                        product_id: productIds
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.favorites && response.favorites.length > 0) {
+                            // Update buttons for favorited products
+                            $.each(response.favorites, function(index, productId) {
+                                $('.wishlist-btn[data-product-id="' + productId + '"]').each(function() {
+                                    $(this).addClass('active');
+                                    $(this).find('i').removeClass('far').addClass('fas');
+                                });
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error loading wishlist status:', error);
+                    }
+                });
+            }
+            
+            // Function to show toast notifications
+            function showToast(message, type = 'success') {
+                // Create toast element
+                var toast = $('<div class="toast-notification toast-' + type + '">' +
+                    '<div class="toast-icon"><i class="fas fa-' + 
+                    (type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle') + 
+                    '"></i></div>' +
+                    '<div class="toast-message">' + message + '</div>' +
+                    '</div>');
+                
+                // Add to container
+                $('#toast-container').append(toast);
+                
+                // Trigger animation
+                setTimeout(function() {
+                    toast.addClass('show');
+                }, 10);
+                
+                // Remove after delay
+                setTimeout(function() {
+                    toast.removeClass('show');
+                    setTimeout(function() {
+                        toast.remove();
+                    }, 300);
+                }, 3000);
+            }
+        });
+    </script>
 
     <script>
         // Messenger chat plugin code
@@ -945,13 +1082,10 @@
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
     </script>
-
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Custom JavaScript -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        $(document).ready(function() {
             // Product card animation
             const productCards = document.querySelectorAll('.product-card');
             
@@ -1240,123 +1374,6 @@
                 maxPriceFilter.value = '';
             });
         });
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize wishlist buttons
-            initializeWishlist();
-            
-            // Handle wishlist button clicks
-            document.querySelectorAll('.wishlist-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    if (!isLoggedIn()) {
-                        window.location.href = '{{ route("login") }}';
-                        return;
-                    }
-                    
-                    const productId = this.dataset.productId;
-                    toggleWishlist(productId, this);
-                });
-            });
-        });
-        
-        function isLoggedIn() {
-            return {{ auth()->check() ? 'true' : 'false' }};
-        }
-        
-        function initializeWishlist() {
-            if (!isLoggedIn()) return;
-            
-            const productIds = Array.from(document.querySelectorAll('.wishlist-btn'))
-                .map(btn => btn.dataset.productId);
-                
-            if (productIds.length === 0) return;
-            
-            // Get all buttons that match products in the wishlist
-            fetch('{{ route("favorites.check") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ product_id: productIds })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.favorites && data.favorites.length > 0) {
-                    data.favorites.forEach(productId => {
-                        document.querySelectorAll(`.wishlist-btn[data-product-id="${productId}"]`)
-                            .forEach(btn => {
-                                btn.classList.add('active');
-                                btn.querySelector('i').classList.remove('far');
-                                btn.querySelector('i').classList.add('fas');
-                            });
-                    });
-                }
-            })
-            .catch(error => console.error('Error checking favorites:', error));
-        }
-        
-        function toggleWishlist(productId, button) {
-            fetch('{{ route("favorites.toggle") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ product_id: productId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Update button appearance
-                if (data.status === 'added') {
-                    button.classList.add('active');
-                    button.querySelector('i').classList.remove('far');
-                    button.querySelector('i').classList.add('fas');
-                    
-                    // Show notification
-                    showNotification('Đã thêm vào danh sách yêu thích', 'success');
-                } else {
-                    button.classList.remove('active');
-                    button.querySelector('i').classList.remove('fas');
-                    button.querySelector('i').classList.add('far');
-                    
-                    // Show notification
-                    showNotification('Đã xóa khỏi danh sách yêu thích', 'info');
-                }
-            })
-            .catch(error => {
-                console.error('Error toggling wishlist:', error);
-                showNotification('Đã xảy ra lỗi. Vui lòng thử lại.', 'error');
-            });
-        }
-        
-        function showNotification(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast-notification toast-${type}`;
-            toast.innerHTML = `
-                <div class="toast-icon">
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
-                </div>
-                <div class="toast-message">${message}</div>
-            `;
-            
-            document.body.appendChild(toast);
-            
-            // Trigger animation
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 10);
-            
-            // Remove after 3 seconds
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    document.body.removeChild(toast);
-                }, 300);
-            }, 3000);
-        }
     </script>
 </body>
 </html> 

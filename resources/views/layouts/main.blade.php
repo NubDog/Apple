@@ -367,6 +367,9 @@
         });
     </script>
     
+    <!-- Include Facebook Messenger Chat -->
+    <x-messenger-chat />
+    
     @stack('scripts')
 </body>
 </html> 

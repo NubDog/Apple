@@ -14,10 +14,47 @@ class FavoriteController extends Controller
      */
     public function index()
     {
-        $favorites = Favorite::with('product')
+        // Get favorites from the Favorites table
+        $favoriteRecords = Favorite::with('product')
             ->where('user_id', Auth::id())
-            ->latest()
-            ->paginate(12);
+            ->get();
+            
+        // Get favorite product IDs from the user's JSON column
+        $user = Auth::user();
+        $favoriteIds = $user->favorites ?? [];
+        
+        // Get products from favorite IDs that are not in the Favorites table
+        $additionalProducts = [];
+        if (!empty($favoriteIds)) {
+            $existingProductIds = $favoriteRecords->pluck('product_id')->toArray();
+            $missingProductIds = array_diff($favoriteIds, $existingProductIds);
+            
+            if (!empty($missingProductIds)) {
+                $additionalProducts = Product::whereIn('id', $missingProductIds)->get();
+                
+                // Convert products to favorite records format
+                foreach ($additionalProducts as $product) {
+                    $favorite = new Favorite();
+                    $favorite->product_id = $product->id;
+                    $favorite->user_id = Auth::id();
+                    $favorite->created_at = now();
+                    $favorite->product = $product;
+                    $favoriteRecords->push($favorite);
+                }
+            }
+        }
+        
+        // Paginate the results manually
+        $perPage = 12;
+        $currentPage = request()->get('page', 1);
+        $currentPageItems = $favoriteRecords->forPage($currentPage, $perPage);
+        $favorites = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentPageItems,
+            $favoriteRecords->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
         
         return view('favorites.index', compact('favorites'));
     }
@@ -27,16 +64,27 @@ class FavoriteController extends Controller
      */
     public function add(Product $product)
     {
-        // Check if already in favorites
+        $user = Auth::user();
+        
+        // Check if already in favorites table
         $exists = Favorite::where('user_id', Auth::id())
             ->where('product_id', $product->id)
             ->exists();
             
         if (!$exists) {
+            // Add to Favorites table
             Favorite::create([
                 'user_id' => Auth::id(),
                 'product_id' => $product->id
             ]);
+            
+            // Add to user's favorites JSON column
+            $favorites = $user->favorites ?? [];
+            if (!in_array($product->id, $favorites)) {
+                $favorites[] = $product->id;
+                $user->favorites = $favorites;
+                $user->save();
+            }
             
             return redirect()->back()->with('success', 'Sản phẩm đã được thêm vào danh sách yêu thích!');
         }
@@ -49,9 +97,20 @@ class FavoriteController extends Controller
      */
     public function remove(Product $product)
     {
+        $user = Auth::user();
+        
+        // Remove from Favorites table
         Favorite::where('user_id', Auth::id())
             ->where('product_id', $product->id)
             ->delete();
+            
+        // Remove from user's favorites JSON column
+        $favorites = $user->favorites ?? [];
+        if (in_array($product->id, $favorites)) {
+            $favorites = array_values(array_diff($favorites, [$product->id]));
+            $user->favorites = $favorites;
+            $user->save();
+        }
             
         return redirect()->back()->with('success', 'Sản phẩm đã được xóa khỏi danh sách yêu thích!');
     }
@@ -66,40 +125,60 @@ class FavoriteController extends Controller
         ]);
 
         $product_id = $request->product_id;
+        $user = Auth::user();
         
-        // Check if already in favorites
+        // Check if already in favorites table
         $favorite = Favorite::where('user_id', Auth::id())
             ->where('product_id', $product_id)
             ->first();
+            
+        // Check if in user's favorites JSON column
+        $favorites = $user->favorites ?? [];
+        $inJsonFavorites = in_array($product_id, $favorites);
         
         $status = '';
         $message = '';
             
-        if ($favorite) {
-            // Remove from favorites
-            $favorite->delete();
+        if ($favorite || $inJsonFavorites) {
+            // Remove from both storage methods
+            if ($favorite) {
+                $favorite->delete();
+            }
+            
+            if ($inJsonFavorites) {
+                $favorites = array_values(array_diff($favorites, [$product_id]));
+                $user->favorites = $favorites;
+                $user->save();
+            }
+            
             $status = 'removed';
             $message = 'Đã xóa khỏi danh sách yêu thích';
         } else {
-            // Add to favorites
+            // Add to both storage methods
             Favorite::create([
                 'user_id' => Auth::id(),
                 'product_id' => $product_id
             ]);
+            
+            $favorites[] = $product_id;
+            $user->favorites = $favorites;
+            $user->save();
+            
             $status = 'added';
             $message = 'Đã thêm vào danh sách yêu thích';
         }
         
-        if ($request->ajax()) {
-            return response()->json([
-                'status' => $status,
-                'message' => $message,
-                'product_id' => $product_id,
-                'count' => Favorite::where('user_id', Auth::id())->count()
-            ]);
-        }
+        // Count total favorites (combine both sources)
+        $dbCount = Favorite::where('user_id', Auth::id())->count();
+        $jsonCount = count($user->favorites ?? []);
+        $totalCount = max($dbCount, $jsonCount); // Use the larger count to avoid duplicates
         
-        return redirect()->back()->with('success', $message);
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+            'product_id' => $product_id,
+            'count' => $totalCount
+        ]);
     }
     
     /**
@@ -107,29 +186,36 @@ class FavoriteController extends Controller
      */
     public function check(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required'
-        ]);
+        $productIds = $request->input('product_id');
         
-        $productIds = $request->product_id;
-        
-        // If single product_id is passed
-        if (!is_array($productIds)) {
-            $isFavorite = Favorite::where('user_id', Auth::id())
-                ->where('product_id', $productIds)
-                ->exists();
-                
+        if (!Auth::check()) {
             return response()->json([
-                'is_favorite' => $isFavorite,
-                'product_id' => $productIds
+                'favorites' => []
             ]);
         }
         
-        // If multiple product_ids are passed
-        $favorites = Favorite::where('user_id', Auth::id())
+        // Handle both array and single value inputs
+        if (!is_array($productIds)) {
+            if (is_string($productIds) && strpos($productIds, ',') !== false) {
+                $productIds = explode(',', $productIds);
+            } else {
+                $productIds = [$productIds];
+            }
+        }
+        
+        $user = Auth::user();
+        
+        // Get favorites from database
+        $dbFavorites = Favorite::where('user_id', Auth::id())
             ->whereIn('product_id', $productIds)
             ->pluck('product_id')
             ->toArray();
+            
+        // Get favorites from user's JSON column
+        $jsonFavorites = array_intersect($user->favorites ?? [], $productIds);
+        
+        // Merge both sources (avoiding duplicates)
+        $favorites = array_unique(array_merge($dbFavorites, $jsonFavorites));
             
         return response()->json([
             'favorites' => $favorites

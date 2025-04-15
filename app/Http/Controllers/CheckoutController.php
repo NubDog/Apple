@@ -123,8 +123,7 @@ class CheckoutController extends Controller
         }
         
         // Send order confirmation email
-        // Temporarily disabled
-        // Mail::to($request->shipping_email)->send(new OrderConfirmation($order));
+        Mail::to($request->shipping_email)->send(new OrderConfirmation($order));
         
         // Clear cart and coupon
         Session::forget('cart');

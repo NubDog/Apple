@@ -33,7 +33,7 @@ class OrderConfirmation extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Order Confirmation - Order #' . $this->order->id,
+            subject: 'Đơn hàng #' . $this->order->id . ' đã được xác nhận',
         );
     }
 
