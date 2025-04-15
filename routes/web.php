@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/favorites/add/{product}', [FavoriteController::class, 'add'])->name('favorites.add');
     Route::delete('/favorites/remove/{product}', [FavoriteController::class, 'remove'])->name('favorites.remove');
     Route::post('/favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+    Route::post('/favorites/check', [FavoriteController::class, 'check'])->name('favorites.check');
     
     // Reviews
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');

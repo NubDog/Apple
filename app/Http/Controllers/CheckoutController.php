@@ -123,7 +123,8 @@ class CheckoutController extends Controller
         }
         
         // Send order confirmation email
-        Mail::to($request->shipping_email)->send(new OrderConfirmation($order));
+        // Temporarily disabled
+        // Mail::to($request->shipping_email)->send(new OrderConfirmation($order));
         
         // Clear cart and coupon
         Session::forget('cart');
@@ -137,12 +138,53 @@ class CheckoutController extends Controller
      */
     public function success(Order $order)
     {
-        // Check if the order belongs to the authenticated user
-        if ($order->user_id !== Auth::id()) {
-            return redirect()->route('home')->with('error', 'Unauthorized.');
-        }
+        // Add convenience properties for the view
+        $order->payment_method_text = $this->getPaymentMethodText($order->payment_method);
+        $order->shipping_method_text = $this->getShippingMethodText($order->shipping_method);
         
         return view('checkout.success', compact('order'));
+    }
+
+    /**
+     * Get human-readable payment method.
+     */
+    private function getPaymentMethodText($method)
+    {
+        switch ($method) {
+            case 'cod':
+                return 'Thanh toán khi nhận hàng (COD)';
+            case 'momo':
+                return 'Ví MoMo';
+            case 'zalopay':
+                return 'Ví ZaloPay';
+            case 'vnpay':
+                return 'VNPAY-QR';
+            case 'bank_transfer':
+                return 'Chuyển khoản ngân hàng';
+            case 'credit_card':
+                return 'Thẻ tín dụng / Ghi nợ';
+            default:
+                return $method;
+        }
+    }
+
+    /**
+     * Get human-readable shipping method.
+     */
+    private function getShippingMethodText($method)
+    {
+        switch ($method) {
+            case 'viettel_post':
+                return 'Viettel Post';
+            case 'shopee_express':
+                return 'Shopee Express';
+            case 'self_transport':
+                return 'Giao hàng hỏa tốc';
+            case 'self_pickup':
+                return 'Nhận tại cửa hàng';
+            default:
+                return $method;
+        }
     }
 
     /**

@@ -355,29 +355,40 @@
         
         .wishlist-btn {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 36px;
-            height: 36px;
-            background-color: white;
+            top: 15px;
+            right: 15px;
+            width: 35px;
+            height: 35px;
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            z-index: 1;
-            transition: all 0.2s;
+            z-index: 2;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         
         .wishlist-btn:hover {
-            background-color: #f8f8f8;
             transform: scale(1.1);
+            background-color: #fff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
         }
         
         .wishlist-btn i {
-            font-size: 16px;
-            color: #666;
+            font-size: 18px;
+            color: #777;
+            transition: all 0.3s ease;
+        }
+        
+        .wishlist-btn:hover i {
+            color: #ff5757;
+        }
+        
+        .wishlist-btn.active i {
+            color: #ff5757;
+            font-weight: 900;
         }
         
         .product-title {
@@ -447,6 +458,63 @@
         
         .view-details:hover i {
             transform: translateX(3px);
+        }
+        
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 300px;
+            background-color: white;
+            color: #333;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            z-index: 9999;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast-success {
+            border-left: 4px solid #4caf50;
+        }
+        
+        .toast-error {
+            border-left: 4px solid #f44336;
+        }
+        
+        .toast-info {
+            border-left: 4px solid #2196f3;
+        }
+        
+        .toast-icon {
+            margin-right: 15px;
+            font-size: 22px;
+        }
+        
+        .toast-success .toast-icon {
+            color: #4caf50;
+        }
+        
+        .toast-error .toast-icon {
+            color: #f44336;
+        }
+        
+        .toast-info .toast-icon {
+            color: #2196f3;
+        }
+        
+        .toast-message {
+            font-size: 14px;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -616,8 +684,8 @@
                             <div class="product-badge badge-featured">Great Price</div>
                         @endif
                         
-                        <div class="wishlist-btn">
-                            <i class="far fa-bookmark"></i>
+                        <div class="wishlist-btn" data-product-id="{{ $product->id }}">
+                            <i class="far fa-heart"></i>
                         </div>
                         
                         <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top" alt="{{ $product->name }}">
@@ -681,8 +749,8 @@
                             <div class="product-badge badge-featured">Great Price</div>
                         @endif
                         
-                        <div class="wishlist-btn">
-                            <i class="far fa-bookmark"></i>
+                        <div class="wishlist-btn" data-product-id="{{ $product->id }}">
+                            <i class="far fa-heart"></i>
                         </div>
                         
                         <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top" alt="{{ $product->name }}">
@@ -737,8 +805,8 @@
                     <div class="card h-100 position-relative">
                         <div class="product-badge badge-sale">Sale</div>
                         
-                        <div class="wishlist-btn">
-                            <i class="far fa-bookmark"></i>
+                        <div class="wishlist-btn" data-product-id="{{ $product->id }}">
+                            <i class="far fa-heart"></i>
                         </div>
                         
                         <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top" alt="{{ $product->name }}">
@@ -1054,8 +1122,8 @@
                                     <div class="card h-100 position-relative">
                                         ${badgeHtml}
                                         
-                                        <div class="wishlist-btn">
-                                            <i class="far fa-bookmark"></i>
+                                        <div class="wishlist-btn" data-product-id="${product.id}">
+                                            <i class="far fa-heart"></i>
                                         </div>
                                         
                                         <img src="${productImage}" class="card-img-top" alt="${productName}" onerror="this.src='/images/no-image.jpg'">
@@ -1172,6 +1240,123 @@
                 maxPriceFilter.value = '';
             });
         });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize wishlist buttons
+            initializeWishlist();
+            
+            // Handle wishlist button clicks
+            document.querySelectorAll('.wishlist-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (!isLoggedIn()) {
+                        window.location.href = '{{ route("login") }}';
+                        return;
+                    }
+                    
+                    const productId = this.dataset.productId;
+                    toggleWishlist(productId, this);
+                });
+            });
+        });
+        
+        function isLoggedIn() {
+            return {{ auth()->check() ? 'true' : 'false' }};
+        }
+        
+        function initializeWishlist() {
+            if (!isLoggedIn()) return;
+            
+            const productIds = Array.from(document.querySelectorAll('.wishlist-btn'))
+                .map(btn => btn.dataset.productId);
+                
+            if (productIds.length === 0) return;
+            
+            // Get all buttons that match products in the wishlist
+            fetch('{{ route("favorites.check") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ product_id: productIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.favorites && data.favorites.length > 0) {
+                    data.favorites.forEach(productId => {
+                        document.querySelectorAll(`.wishlist-btn[data-product-id="${productId}"]`)
+                            .forEach(btn => {
+                                btn.classList.add('active');
+                                btn.querySelector('i').classList.remove('far');
+                                btn.querySelector('i').classList.add('fas');
+                            });
+                    });
+                }
+            })
+            .catch(error => console.error('Error checking favorites:', error));
+        }
+        
+        function toggleWishlist(productId, button) {
+            fetch('{{ route("favorites.toggle") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ product_id: productId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update button appearance
+                if (data.status === 'added') {
+                    button.classList.add('active');
+                    button.querySelector('i').classList.remove('far');
+                    button.querySelector('i').classList.add('fas');
+                    
+                    // Show notification
+                    showNotification('Đã thêm vào danh sách yêu thích', 'success');
+                } else {
+                    button.classList.remove('active');
+                    button.querySelector('i').classList.remove('fas');
+                    button.querySelector('i').classList.add('far');
+                    
+                    // Show notification
+                    showNotification('Đã xóa khỏi danh sách yêu thích', 'info');
+                }
+            })
+            .catch(error => {
+                console.error('Error toggling wishlist:', error);
+                showNotification('Đã xảy ra lỗi. Vui lòng thử lại.', 'error');
+            });
+        }
+        
+        function showNotification(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                </div>
+                <div class="toast-message">${message}</div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
     </script>
 </body>
 </html> 

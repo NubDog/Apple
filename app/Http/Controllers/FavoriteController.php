@@ -14,7 +14,10 @@ class FavoriteController extends Controller
      */
     public function index()
     {
-        $favorites = Favorite::with('product')->where('user_id', Auth::id())->paginate(12);
+        $favorites = Favorite::with('product')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(12);
         
         return view('favorites.index', compact('favorites'));
     }
@@ -35,10 +38,10 @@ class FavoriteController extends Controller
                 'product_id' => $product->id
             ]);
             
-            return redirect()->back()->with('success', 'Product added to favorites!');
+            return redirect()->back()->with('success', 'Sản phẩm đã được thêm vào danh sách yêu thích!');
         }
         
-        return redirect()->back()->with('info', 'Product is already in your favorites.');
+        return redirect()->back()->with('info', 'Sản phẩm đã có trong danh sách yêu thích của bạn.');
     }
 
     /**
@@ -50,7 +53,7 @@ class FavoriteController extends Controller
             ->where('product_id', $product->id)
             ->delete();
             
-        return redirect()->back()->with('success', 'Product removed from favorites!');
+        return redirect()->back()->with('success', 'Sản phẩm đã được xóa khỏi danh sách yêu thích!');
     }
 
     /**
@@ -68,18 +71,68 @@ class FavoriteController extends Controller
         $favorite = Favorite::where('user_id', Auth::id())
             ->where('product_id', $product_id)
             ->first();
+        
+        $status = '';
+        $message = '';
             
         if ($favorite) {
             // Remove from favorites
             $favorite->delete();
-            return redirect()->back()->with('success', 'Product removed from favorites!');
+            $status = 'removed';
+            $message = 'Đã xóa khỏi danh sách yêu thích';
         } else {
             // Add to favorites
             Favorite::create([
                 'user_id' => Auth::id(),
                 'product_id' => $product_id
             ]);
-            return redirect()->back()->with('success', 'Product added to favorites!');
+            $status = 'added';
+            $message = 'Đã thêm vào danh sách yêu thích';
         }
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'status' => $status,
+                'message' => $message,
+                'product_id' => $product_id,
+                'count' => Favorite::where('user_id', Auth::id())->count()
+            ]);
+        }
+        
+        return redirect()->back()->with('success', $message);
+    }
+    
+    /**
+     * Check if a product is in user's favorites
+     */
+    public function check(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required'
+        ]);
+        
+        $productIds = $request->product_id;
+        
+        // If single product_id is passed
+        if (!is_array($productIds)) {
+            $isFavorite = Favorite::where('user_id', Auth::id())
+                ->where('product_id', $productIds)
+                ->exists();
+                
+            return response()->json([
+                'is_favorite' => $isFavorite,
+                'product_id' => $productIds
+            ]);
+        }
+        
+        // If multiple product_ids are passed
+        $favorites = Favorite::where('user_id', Auth::id())
+            ->whereIn('product_id', $productIds)
+            ->pluck('product_id')
+            ->toArray();
+            
+        return response()->json([
+            'favorites' => $favorites
+        ]);
     }
 }
