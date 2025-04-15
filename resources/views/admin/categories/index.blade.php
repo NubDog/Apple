@@ -1,14 +1,14 @@
 @extends('layouts.admin')
 
-@section('title', 'Users Management')
+@section('title', 'Categories Management')
 
 @section('content')
 <div class="admin-container">
-    <div class="users-dashboard">
+    <div class="categories-dashboard">
         <!-- Header Section -->
         <div class="dashboard-header">
             <div class="breadcrumb">
-                <span>Dashboard</span> <i class="bi bi-chevron-right"></i> <span>Users Management</span>
+                <span>Dashboard</span> <i class="bi bi-chevron-right"></i> <span>Categories Management</span>
             </div>
             <div class="header-actions">
                 <button class="btn-notification">
@@ -21,12 +21,12 @@
             </div>
         </div>
 
-        <!-- Users Section -->
+        <!-- Categories Section -->
         <div class="section-container">
             <div class="section-header">
-                <h2 class="section-title">Users</h2>
+                <h2 class="section-title">Categories</h2>
                 <div class="section-actions">
-                    <a href="{{ route('admin.users.index') }}" class="btn-view-all">View All</a>
+                    <a href="{{ route('admin.categories.index') }}" class="btn-view-all">View All</a>
                 </div>
             </div>
             
@@ -34,120 +34,101 @@
             <div class="control-bar">
                 <div class="search-container">
                     <i class="bi bi-search search-icon"></i>
-                    <input type="text" id="search-users" class="search-input" placeholder="Search by name...">
+                    <input type="text" id="search-categories" class="search-input" placeholder="Search by name...">
                 </div>
                 
                 <div class="filters">
-                    <a href="{{ route('admin.users.create') }}" class="btn-primary">
-                        <i class="bi bi-plus"></i> Add New User
+                    <a href="{{ route('admin.categories.create') }}" class="btn-primary">
+                        <i class="bi bi-plus"></i> Add New Category
                     </a>
-                    
-                    <div class="filter-buttons">
-                        <button class="btn-filter active">All</button>
-                        <button class="btn-filter">Admin</button>
-                        <button class="btn-filter">Regular</button>
-                    </div>
                 </div>
             </div>
             
-            <!-- User Statistics -->
+            <!-- Category Statistics -->
             <div class="stats-container">
                 <div class="stat-card">
                     <div class="stat-icon blue">
-                        <i class="bi bi-people-fill"></i>
+                        <i class="bi bi-grid-fill"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>{{ $totalUsers }}</h3>
-                        <p>Total Users</p>
+                        <h3>{{ $categories->total() }}</h3>
+                        <p>Total Categories</p>
                     </div>
                 </div>
                 
                 <div class="stat-card">
                     <div class="stat-icon green">
-                        <i class="bi bi-person-check-fill"></i>
+                        <i class="bi bi-car-front-fill"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>{{ $activeUsers }}</h3>
-                        <p>Active Users</p>
+                        @php
+                            $totalProducts = 0;
+                            foreach ($categories as $category) {
+                                $totalProducts += $category->products()->count();
+                            }
+                        @endphp
+                        <h3>{{ $totalProducts }}</h3>
+                        <p>Total Products</p>
                     </div>
                 </div>
                 
                 <div class="stat-card">
                     <div class="stat-icon purple">
-                        <i class="bi bi-shield-lock-fill"></i>
+                        <i class="bi bi-basket-fill"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>{{ $adminUsers }}</h3>
-                        <p>Admin Users</p>
+                        <h3>{{ $categories->count() }}</h3>
+                        <p>Current Page</p>
                     </div>
                 </div>
             </div>
             
-            <!-- Users Cards Grid -->
-            <div class="users-grid">
-                @foreach($users as $user)
-                <div class="user-card" data-role="{{ $user->isAdmin() ? 'admin' : 'user' }}">
+            <!-- Categories Cards Grid -->
+            <div class="categories-grid">
+                @foreach($categories as $category)
+                <div class="category-card">
                     <div class="card-header">
                         <div class="time-badge">
-                            <i class="bi bi-clock"></i> Registered: {{ $user->created_at->format('M d, Y') }}
+                            <i class="bi bi-clock"></i> Created: {{ $category->created_at->format('M d, Y') }}
                         </div>
-                        <div class="status-badge {{ $user->isAdmin() ? 'admin' : 'regular' }}">
-                            {{ $user->isAdmin() ? 'Admin' : 'Regular User' }}
+                        <div class="product-count-badge">
+                            {{ $category->products()->count() }} Products
                         </div>
                     </div>
                     
                     <div class="card-content">
-                        <div class="user-avatar">
-                            <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('images/default-avatar.jpg') }}" alt="{{ $user->name }}">
+                        <div class="category-image">
+                            <img src="{{ $category->image ? asset('storage/' . $category->image) : asset('images/default-category.jpg') }}" alt="{{ $category->name }}">
                         </div>
                         
-                        <h3 class="user-name">{{ $user->name }}</h3>
-                        <p class="user-specialty">{{ $user->email }}</p>
+                        <h3 class="category-name">{{ $category->name }}</h3>
+                        <p class="category-slug">{{ $category->slug }}</p>
                         
-                        <div class="user-details">
-                            <div class="detail-item">
-                                <i class="bi bi-telephone"></i>
-                                <span>{{ $user->phone ?? 'No phone number' }}</span>
-                            </div>
-                            <div class="detail-item">
-                                <i class="bi bi-geo-alt"></i>
-                                <span>{{ $user->address ?? 'No address' }}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="patients-counter">
-                            <div class="counter-label">
-                                <i class="bi bi-activity"></i>
-                                <span>Activity</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: {{ $user->isAdmin() ? '100%' : '60%' }}"></div>
-                            </div>
-                            <div class="counter-value">
-                                {{ $user->isAdmin() ? 'Admin Access' : 'Regular Access' }}
-                            </div>
+                        <div class="category-description">
+                            {{ Str::limit($category->description, 100) ?? 'No description available' }}
                         </div>
                     </div>
                     
                     <div class="card-actions">
-                        <a href="{{ route('admin.users.show', $user->id) }}" class="btn-action view" title="View">
+                        <a href="{{ route('admin.categories.show', $category->id) }}" class="btn-action view" title="View">
                             <i class="bi bi-eye"></i>
                         </a>
-                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn-action edit" title="Edit">
+                        <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn-action edit" title="Edit">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <button class="btn-action message" title="Message">
-                            <i class="bi bi-chat"></i>
-                        </button>
-                        @if($user->id != auth()->id())
-                        <button class="btn-action delete" title="Delete" onclick="confirmDelete({{ $user->id }})">
+                        @if($category->products()->count() == 0)
+                        <button class="btn-action delete" title="Delete" onclick="confirmDelete({{ $category->id }})">
                             <i class="bi bi-trash"></i>
                         </button>
                         
-                        <form id="delete-form-{{ $user->id }}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: none;">
+                        <form id="delete-form-{{ $category->id }}" action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" style="display: none;">
                             @csrf
                             @method('DELETE')
                         </form>
+                        @else
+                        <button class="btn-action disabled" title="Cannot delete category with products" disabled>
+                            <i class="bi bi-trash"></i>
+                        </button>
                         @endif
                     </div>
                 </div>
@@ -157,26 +138,26 @@
             <!-- Pagination -->
             <div class="pagination-container">
                 <div class="pagination-info">
-                    Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} results
+                    Showing {{ $categories->firstItem() ?? 0 }} to {{ $categories->lastItem() ?? 0 }} of {{ $categories->total() }} results
                 </div>
-                <nav aria-label="User pagination">
+                <nav aria-label="Category pagination">
                     <ul class="pagination">
-                        @if ($users->onFirstPage())
+                        @if ($categories->onFirstPage())
                             <li class="disabled"><span>&laquo;</span></li>
                         @else
-                            <li><a href="{{ $users->previousPageUrl() }}" rel="prev">&laquo;</a></li>
+                            <li><a href="{{ $categories->previousPageUrl() }}" rel="prev">&laquo;</a></li>
                         @endif
 
-                        @foreach(range(1, $users->lastPage()) as $page)
-                            @if($page == $users->currentPage())
+                        @foreach(range(1, $categories->lastPage()) as $page)
+                            @if($page == $categories->currentPage())
                                 <li class="active"><span>{{ $page }}</span></li>
                             @else
-                                <li><a href="{{ $users->url($page) }}">{{ $page }}</a></li>
+                                <li><a href="{{ $categories->url($page) }}">{{ $page }}</a></li>
                             @endif
                         @endforeach
 
-                        @if ($users->hasMorePages())
-                            <li><a href="{{ $users->nextPageUrl() }}" rel="next">&raquo;</a></li>
+                        @if ($categories->hasMorePages())
+                            <li><a href="{{ $categories->nextPageUrl() }}" rel="next">&raquo;</a></li>
                         @else
                             <li class="disabled"><span>&raquo;</span></li>
                         @endif
@@ -198,72 +179,6 @@
             </div>
             @endif
         </div>
-        
-        <!-- User Roles Section -->
-        <div class="section-container">
-            <div class="section-header">
-                <h2 class="section-title">User Roles</h2>
-                <div class="section-actions">
-                    <button class="btn-view-all">View All</button>
-                </div>
-            </div>
-            
-            <div class="roles-control-bar">
-                <button class="btn-primary">
-                    <i class="bi bi-plus"></i> Add New Role
-                </button>
-                
-                <div class="filter-buttons">
-                    <button class="btn-filter active">All</button>
-                    <button class="btn-filter">System</button>
-                    <button class="btn-filter">Custom</button>
-                </div>
-            </div>
-            
-            <div class="roles-grid">
-                <div class="role-card">
-                    <div class="role-icon admin">
-                        <i class="bi bi-shield-lock"></i>
-                    </div>
-                    <div class="role-info">
-                        <h3>Administrator</h3>
-                        <p>Full system access</p>
-                    </div>
-                    <div class="role-actions">
-                        <button class="btn-role-action"><i class="bi bi-pencil"></i></button>
-                        <button class="btn-role-action"><i class="bi bi-info-circle"></i></button>
-                    </div>
-                </div>
-                
-                <div class="role-card">
-                    <div class="role-icon manager">
-                        <i class="bi bi-briefcase"></i>
-                    </div>
-                    <div class="role-info">
-                        <h3>Manager</h3>
-                        <p>Product management</p>
-                    </div>
-                    <div class="role-actions">
-                        <button class="btn-role-action"><i class="bi bi-pencil"></i></button>
-                        <button class="btn-role-action"><i class="bi bi-info-circle"></i></button>
-                    </div>
-                </div>
-                
-                <div class="role-card">
-                    <div class="role-icon user">
-                        <i class="bi bi-person"></i>
-                    </div>
-                    <div class="role-info">
-                        <h3>User</h3>
-                        <p>Regular user access</p>
-                    </div>
-                    <div class="role-actions">
-                        <button class="btn-role-action"><i class="bi bi-pencil"></i></button>
-                        <button class="btn-role-action"><i class="bi bi-info-circle"></i></button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection
@@ -280,17 +195,11 @@
     }
     
     /* Main layout */
-    .users-page {
-        padding: 24px;
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-
-    /* Dashboard Layout */
-    .users-dashboard {
+    .categories-dashboard {
         width: 100%;
         padding: 20px;
         background-color: #f8f9fa;
+        overflow-x: hidden;
     }
     
     /* Header Styles */
@@ -440,30 +349,6 @@
         background-color: #3a56d4;
     }
     
-    .filter-buttons {
-        display: flex;
-        background-color: #f1f3f9;
-        border-radius: 30px;
-        padding: 4px;
-    }
-    
-    .btn-filter {
-        padding: 8px 16px;
-        border-radius: 30px;
-        border: none;
-        background: none;
-        font-size: 14px;
-        color: #6c757d;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-    
-    .btn-filter.active {
-        background-color: #fff;
-        color: #4361ee;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    
     /* Stats Container */
     .stats-container {
         display: flex;
@@ -523,16 +408,16 @@
         margin: 0;
     }
     
-    /* Users Grid */
-    .users-grid {
+    /* Categories Grid */
+    .categories-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 16px;
         margin-bottom: 24px;
         width: 100%;
     }
     
-    .user-card {
+    .category-card {
         border-radius: 12px;
         background-color: #fff;
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -541,7 +426,7 @@
         width: 100%;
     }
     
-    .user-card:hover {
+    .category-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
@@ -562,19 +447,11 @@
         gap: 6px;
     }
     
-    .status-badge {
+    .product-count-badge {
         padding: 4px 12px;
         border-radius: 30px;
         font-size: 12px;
         font-weight: 500;
-    }
-    
-    .status-badge.admin {
-        background-color: #8b5cf6;
-        color: white;
-    }
-    
-    .status-badge.regular {
         background-color: #10b981;
         color: white;
     }
@@ -584,85 +461,42 @@
         text-align: center;
     }
     
-    .user-avatar {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        margin: 0 auto 16px;
+    .category-image {
+        width: 100%;
+        height: 160px;
+        border-radius: 8px;
+        margin-bottom: 16px;
         overflow: hidden;
-        border: 3px solid #f1f3f9;
     }
     
-    .user-avatar img {
+    .category-image img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
     
-    .user-name {
+    .category-name {
         font-size: 18px;
         font-weight: 600;
         margin: 0 0 4px 0;
         color: #212529;
     }
     
-    .user-specialty {
+    .category-slug {
         font-size: 14px;
         color: #6c757d;
         margin: 0 0 16px 0;
     }
     
-    .user-details {
-        margin-bottom: 16px;
-    }
-    
-    .detail-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 8px;
-        font-size: 13px;
+    .category-description {
+        font-size: 14px;
         color: #495057;
+        line-height: 1.5;
+        max-height: 84px;
         overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        max-width: 100%;
-    }
-    
-    .patients-counter {
-        padding: 12px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-    }
-    
-    .counter-label {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 8px;
-        font-size: 14px;
-        color: #6c757d;
-    }
-    
-    .progress-bar {
-        height: 8px;
-        border-radius: 4px;
-        background-color: #e9ecef;
-        margin-bottom: 8px;
-        overflow: hidden;
-    }
-    
-    .progress {
-        height: 100%;
-        border-radius: 4px;
-        background-color: #4361ee;
-    }
-    
-    .counter-value {
-        font-size: 14px;
-        font-weight: 500;
-        color: #4361ee;
-        text-align: right;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
     }
     
     .card-actions {
@@ -697,100 +531,13 @@
         color: #ffc107;
     }
     
-    .btn-action.message:hover {
-        color: #10b981;
-    }
-    
     .btn-action.delete:hover {
         color: #dc3545;
     }
     
-    /* Roles Grid */
-    .roles-control-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
-    }
-    
-    .roles-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 20px;
-    }
-    
-    .role-card {
-        padding: 20px;
-        border-radius: 12px;
-        background-color: #f8f9fa;
-        display: flex;
-        align-items: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    
-    .role-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 16px;
-        font-size: 20px;
-        color: white;
-    }
-    
-    .role-icon.admin {
-        background-color: #8b5cf6;
-    }
-    
-    .role-icon.manager {
-        background-color: #4361ee;
-    }
-    
-    .role-icon.user {
-        background-color: #10b981;
-    }
-    
-    .role-info {
-        flex: 1;
-    }
-    
-    .role-info h3 {
-        font-size: 16px;
-        font-weight: 600;
-        margin: 0 0 4px 0;
-        color: #212529;
-    }
-    
-    .role-info p {
-        font-size: 13px;
-        color: #6c757d;
-        margin: 0;
-    }
-    
-    .role-actions {
-        display: flex;
-        gap: 8px;
-    }
-    
-    .btn-role-action {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        border: none;
-        background-color: #fff;
-        color: #6c757d;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-    
-    .btn-role-action:hover {
-        background-color: #4361ee;
-        color: #fff;
+    .btn-action.disabled {
+        color: #adb5bd;
+        cursor: not-allowed;
     }
     
     /* Pagination */
@@ -893,12 +640,8 @@
 
     /* Responsive styles */
     @media (max-width: 992px) {
-        .users-grid {
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        }
-        
-        .roles-grid {
-            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        .categories-grid {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         }
         
         .stats-container {
@@ -907,7 +650,7 @@
     }
     
     @media (max-width: 768px) {
-        .control-bar, .roles-control-bar {
+        .control-bar {
             flex-direction: column;
             align-items: stretch;
             gap: 16px;
@@ -917,13 +660,13 @@
             width: 100%;
         }
         
-        .users-grid {
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        .categories-grid {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         }
     }
     
     @media (max-width: 480px) {
-        .users-grid {
+        .categories-grid {
             grid-template-columns: 1fr;
         }
     }
@@ -934,49 +677,23 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Confirm delete function
-        window.confirmDelete = function(userId) {
-            if(confirm('Are you sure you want to delete this user?')) {
-                document.getElementById('delete-form-' + userId).submit();
+        window.confirmDelete = function(categoryId) {
+            if(confirm('Are you sure you want to delete this category?')) {
+                document.getElementById('delete-form-' + categoryId).submit();
             }
         };
         
-        // Filter buttons functionality
-        const filterButtons = document.querySelectorAll('.filter-buttons .btn-filter');
-        filterButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // Remove active class from all buttons
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                
-                // Add active class to clicked button
-                this.classList.add('active');
-                
-                // Filter cards based on clicked filter
-                const filter = this.textContent.trim().toLowerCase();
-                const userCards = document.querySelectorAll('.user-card');
-                
-                userCards.forEach(card => {
-                    const cardRole = card.getAttribute('data-role');
-                    
-                    if (filter === 'all' || filter === cardRole) {
-                        card.style.display = '';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        });
-        
         // Search functionality
-        const searchInput = document.getElementById('search-users');
+        const searchInput = document.getElementById('search-categories');
         searchInput.addEventListener('keyup', function() {
             const searchValue = this.value.toLowerCase();
-            const userCards = document.querySelectorAll('.user-card');
+            const categoryCards = document.querySelectorAll('.category-card');
             
-            userCards.forEach(card => {
-                const userName = card.querySelector('.user-name').textContent.toLowerCase();
-                const userEmail = card.querySelector('.user-specialty').textContent.toLowerCase();
+            categoryCards.forEach(card => {
+                const categoryName = card.querySelector('.category-name').textContent.toLowerCase();
+                const categoryDescription = card.querySelector('.category-description').textContent.toLowerCase();
                 
-                if (userName.includes(searchValue) || userEmail.includes(searchValue)) {
+                if (categoryName.includes(searchValue) || categoryDescription.includes(searchValue)) {
                     card.style.display = '';
                 } else {
                     card.style.display = 'none';
