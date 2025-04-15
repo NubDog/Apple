@@ -46,6 +46,7 @@ Route::post('/cart/update', [CartController::class, 'update'])->name('cart.updat
 Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 Route::post('/cart/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.apply.coupon');
+Route::get('/cart/count', [CartController::class, 'getCount'])->name('cart.count');
 
 // Contact routes
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');

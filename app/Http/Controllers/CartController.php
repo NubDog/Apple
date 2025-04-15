@@ -171,4 +171,19 @@ class CartController extends Controller
             'total' => $total
         ];
     }
+
+    /**
+     * Get the number of items in the cart.
+     */
+    public function getCount()
+    {
+        $cart = Session::get('cart', []);
+        $count = 0;
+        
+        foreach ($cart as $item) {
+            $count += $item['quantity'];
+        }
+        
+        return response()->json(['count' => $count]);
+    }
 }

@@ -43,6 +43,29 @@
             <div class="price-tag">
                 <div class="text-muted small">Giá</div>
                 <div class="fs-2 fw-bold text-primary">${{ number_format($product->price, 0) }}</div>
+                @if($product->on_sale && $product->sale_price)
+                    <div class="text-decoration-line-through text-muted">
+                        ${{ number_format($product->sale_price, 0) }}
+                    </div>
+                @endif
+                
+                <div class="mt-3">
+                    <form action="{{ route('cart.add') }}" method="POST">
+                        @csrf
+                        <div class="d-flex align-items-center mb-3">
+                            <label for="quantity" class="me-3">Số lượng:</label>
+                            <div class="input-group" style="width: 120px;">
+                                <button type="button" class="btn btn-outline-secondary qty-btn" data-action="decrease">-</button>
+                                <input type="number" class="form-control text-center" id="quantity" name="quantity" value="1" min="1" max="{{ $product->quantity ?? 99 }}">
+                                <button type="button" class="btn btn-outline-secondary qty-btn" data-action="increase">+</button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ hàng
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -651,55 +674,81 @@
 
 @push('scripts')
 <script>
-    // Xử lý gallery ảnh
     document.addEventListener('DOMContentLoaded', function() {
-        const thumbnails = document.querySelectorAll('.product-thumbnail');
+        // Quantity button handling
+        const qtyBtns = document.querySelectorAll('.qty-btn');
+        const qtyInput = document.getElementById('quantity');
+        
+        qtyBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                const currentValue = parseInt(qtyInput.value);
+                const maxValue = parseInt(qtyInput.getAttribute('max'));
+                
+                if (action === 'increase' && currentValue < maxValue) {
+                    qtyInput.value = currentValue + 1;
+                } else if (action === 'decrease' && currentValue > 1) {
+                    qtyInput.value = currentValue - 1;
+                }
+            });
+        });
+        
+        // Product gallery
         const mainImage = document.getElementById('main-product-image');
+        const thumbnails = document.querySelectorAll('.product-thumbnail');
         
         thumbnails.forEach(thumb => {
             thumb.addEventListener('click', function() {
-                // Xóa class active từ tất cả thumbnails
+                // Remove active class from all thumbnails
                 thumbnails.forEach(t => t.classList.remove('active'));
-                // Thêm class active cho thumbnail được click
+                
+                // Add active class to clicked thumbnail
                 this.classList.add('active');
-                // Cập nhật hình ảnh chính
+                
+                // Update main image
                 mainImage.src = this.getAttribute('data-src');
             });
         });
         
-        // Xử lý đánh giá sao
-        const ratingStars = document.querySelectorAll('.rating-star');
-        const ratingValue = document.getElementById('rating-value');
+        // Review stars interactivity
+        const reviewStars = document.querySelectorAll('.review-form-stars i');
+        const ratingInput = document.getElementById('rating-input');
         
-        ratingStars.forEach(star => {
-            star.addEventListener('mouseover', function() {
-                const value = this.getAttribute('data-value');
-                highlightStars(value);
+        if (reviewStars.length) {
+            reviewStars.forEach((star, index) => {
+                star.addEventListener('mouseover', function() {
+                    resetStars();
+                    highlightStars(index);
+                });
+                
+                star.addEventListener('click', function() {
+                    ratingInput.value = index + 1;
+                });
             });
             
-            star.addEventListener('mouseout', function() {
-                highlightStars(ratingValue.value);
+            document.querySelector('.review-form-stars').addEventListener('mouseout', function() {
+                resetStars();
+                if (ratingInput.value) {
+                    highlightStars(parseInt(ratingInput.value) - 1);
+                }
             });
-            
-            star.addEventListener('click', function() {
-                const value = this.getAttribute('data-value');
-                ratingValue.value = value;
-                highlightStars(value);
-            });
-        });
+        }
         
-        function highlightStars(value) {
-            ratingStars.forEach(star => {
-                const starValue = star.getAttribute('data-value');
-                if (starValue <= value) {
+        function highlightStars(index) {
+            reviewStars.forEach((star, i) => {
+                if (i <= index) {
                     star.classList.remove('far');
                     star.classList.add('fas');
                     star.classList.add('text-warning');
-                } else {
-                    star.classList.remove('fas');
-                    star.classList.remove('text-warning');
-                    star.classList.add('far');
                 }
+            });
+        }
+        
+        function resetStars() {
+            reviewStars.forEach(star => {
+                star.classList.remove('fas');
+                star.classList.remove('text-warning');
+                star.classList.add('far');
             });
         }
         

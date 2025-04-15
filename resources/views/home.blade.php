@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Shark Car - Trang chủ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -642,9 +643,19 @@
                             
                             <div class="product-price">${{ number_format($product->on_sale && $product->sale_price ? $product->sale_price : $product->price) }}</div>
                             
-                            <a href="{{ route('products.show', $product->slug) }}" class="view-details">
-                                View Details <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="d-flex mt-3">
+                                <a href="{{ route('products.show', $product->slug) }}" class="view-details me-2">
+                                    View Details <i class="fas fa-arrow-right"></i>
+                                </a>
+                                <form action="{{ route('cart.add') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-cart-plus"></i> Add to Cart
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -697,9 +708,19 @@
                             
                             <div class="product-price">${{ number_format($product->on_sale && $product->sale_price ? $product->sale_price : $product->price) }}</div>
                             
-                            <a href="{{ route('products.show', $product->slug) }}" class="view-details">
-                                View Details <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="d-flex mt-3">
+                                <a href="{{ route('products.show', $product->slug) }}" class="view-details me-2">
+                                    View Details <i class="fas fa-arrow-right"></i>
+                                </a>
+                                <form action="{{ route('cart.add') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-cart-plus"></i> Add to Cart
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -743,9 +764,19 @@
                             
                             <div class="product-price">${{ number_format($product->sale_price) }}</div>
                             
-                            <a href="{{ route('products.show', $product->slug) }}" class="view-details">
-                                View Details <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="d-flex mt-3">
+                                <a href="{{ route('products.show', $product->slug) }}" class="view-details me-2">
+                                    View Details <i class="fas fa-arrow-right"></i>
+                                </a>
+                                <form action="{{ route('cart.add') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-cart-plus"></i> Add to Cart
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1055,9 +1086,19 @@
                                                     `<small class="text-muted text-decoration-line-through ms-2">$${productPrice.toLocaleString()}</small>` : ''}
                                             </div>
                                             
-                                            <a href="/products/${productSlug}" class="view-details">
-                                                View Details <i class="fas fa-arrow-right"></i>
-                                            </a>
+                                            <div class="d-flex mt-3">
+                                                <a href="/products/${productSlug}" class="view-details me-2">
+                                                    View Details <i class="fas fa-arrow-right"></i>
+                                                </a>
+                                                <form action="/cart/add" method="POST">
+                                                    <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
+                                                    <input type="hidden" name="product_id" value="${product.id}">
+                                                    <input type="hidden" name="quantity" value="1">
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-cart-plus"></i> Add to Cart
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
                                 `;
