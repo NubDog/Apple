@@ -73,9 +73,48 @@ class ProductController extends Controller
     public function category($slug)
     {
         $category = Category::where('slug', $slug)->firstOrFail();
-        $products = Product::where('category_id', $category->id)
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
+        $query = Product::where('category_id', $category->id);
+        
+        // Apply price filters if provided
+        if (request()->has('min_price')) {
+            $query->where(function($q) {
+                $minPrice = request('min_price');
+                $q->where('price', '>=', $minPrice)
+                  ->orWhere('sale_price', '>=', $minPrice);
+            });
+        }
+        
+        if (request()->has('max_price')) {
+            $query->where(function($q) {
+                $maxPrice = request('max_price');
+                $q->where('price', '<=', $maxPrice)
+                  ->orWhere(function($sq) use ($maxPrice) {
+                      $sq->where('sale_price', '<=', $maxPrice)
+                         ->where('sale_price', '>', 0);
+                  });
+            });
+        }
+        
+        // Apply sorting
+        if (request()->has('sort')) {
+            switch (request('sort')) {
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+                case 'name_asc':
+                    $query->orderBy('name', 'asc');
+                    break;
+                default:
+                    $query->orderBy('created_at', 'desc');
+            }
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+        
+        $products = $query->paginate(10); // Show 10 products per page (1 row each)
         $categories = Category::all();
         
         return view('products.category', compact('category', 'products', 'categories'));
