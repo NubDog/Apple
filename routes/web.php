@@ -84,6 +84,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     
     // Admin User management
     Route::resource('users', UserController::class, ['as' => 'admin']);
+    Route::get('users/{id}/details', [UserController::class, 'getUserDetails'])->name('admin.users.details');
     
     // Admin Category management
     Route::resource('categories', AdminCategoryController::class, ['as' => 'admin']);

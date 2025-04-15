@@ -7,6 +7,11 @@
     <div class="card">
         <div class="card-title">
             Orders Management
+            <div class="actions">
+                <a href="{{ route('admin.orders.create') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create Order
+                </a>
+            </div>
         </div>
         
         <div class="filters-container">
@@ -123,6 +128,13 @@
                                 <button type="button" class="btn-action status" title="Change Status" onclick="openStatusModal({{ $order->id }}, '{{ $order->status }}')">
                                     <i class="bi bi-arrow-repeat"></i>
                                 </button>
+                                <form method="POST" action="{{ route('admin.orders.destroy', $order->id) }}" class="d-inline delete-form" data-order-id="{{ $order->id }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn-action delete" title="Delete" onclick="confirmDelete({{ $order->id }})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -175,6 +187,11 @@
 <style>
     .orders-container {
         width: 100%;
+    }
+    
+    .actions {
+        display: flex;
+        gap: 10px;
     }
     
     .filters-container {
@@ -399,6 +416,14 @@
         background-color: #ffc107;
     }
     
+    .btn-action.delete {
+        background-color: #dc3545;
+    }
+    
+    .d-inline {
+        display: inline-block;
+    }
+    
     .pagination-container {
         margin-top: 20px;
     }
@@ -521,6 +546,13 @@
     
     function closeStatusModal() {
         document.getElementById('statusModal').classList.remove('show');
+    }
+    
+    // Delete confirmation function
+    function confirmDelete(orderId) {
+        if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+            document.querySelector(`.delete-form[data-order-id="${orderId}"]`).submit();
+        }
     }
     
     $(document).ready(function() {

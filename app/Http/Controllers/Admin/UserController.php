@@ -78,6 +78,21 @@ class UserController extends Controller
     }
 
     /**
+     * Get user details for AJAX requests.
+     */
+    public function getUserDetails(string $id)
+    {
+        $user = User::findOrFail($id);
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'address' => $user->address
+        ]);
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)

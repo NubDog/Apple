@@ -14,6 +14,13 @@
                 <a href="{{ route('admin.orders.edit', $order->id) }}" class="btn btn-primary">
                     <i class="bi bi-pencil"></i> Edit Order
                 </a>
+                <form method="POST" action="{{ route('admin.orders.destroy', $order->id) }}" class="d-inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this order? This action cannot be undone.')">
+                        <i class="bi bi-trash"></i> Delete Order
+                    </button>
+                </form>
             </div>
         </div>
         
@@ -205,6 +212,16 @@
         background-color: #6c757d;
         color: white;
         border: 1px solid #6c757d;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        border: 1px solid #dc3545;
+    }
+    
+    .d-inline {
+        display: inline-block;
     }
     
     .btn-sm {
