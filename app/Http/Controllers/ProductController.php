@@ -52,13 +52,19 @@ class ProductController extends Controller
      */
     public function show($slug)
     {
-        $product = Product::where('slug', $slug)->firstOrFail();
+        $product = Product::with(['category', 'reviews.user'])->where('slug', $slug)->firstOrFail();
+        
+        // Load related products from the same category
         $relatedProducts = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->take(4)
             ->get();
             
-        return view('products.show', compact('product', 'relatedProducts'));
+        // Calculate average rating
+        $avgRating = $product->reviews->avg('rating');
+        $reviewsCount = $product->reviews->count();
+            
+        return view('products.show', compact('product', 'relatedProducts', 'avgRating', 'reviewsCount'));
     }
 
     /**

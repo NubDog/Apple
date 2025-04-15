@@ -71,6 +71,14 @@ class Product extends Model
     }
 
     /**
+     * Get the reviews for the product
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
      * Scope a query to only include featured products
      */
     public function scopeFeatured($query)
