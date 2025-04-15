@@ -479,8 +479,8 @@
                         <a class="nav-link" href="{{ route('contact.index') }}">Liên hệ</a>
                     </li>
                 </ul>
-                <form class="d-flex me-2" action="{{ route('search') }}" method="GET">
-                    <input class="form-control me-2" type="search" name="query" placeholder="Tìm kiếm xe..." required>
+                <form class="d-flex me-2" id="searchForm">
+                    <input class="form-control me-2" type="search" id="searchInput" name="query" placeholder="Tìm kiếm xe..." required>
                     <button class="btn btn-secondary" type="submit"><i class="fas fa-search"></i></button>
                 </form>
                 <div class="d-flex">
@@ -543,9 +543,66 @@
         </button>
     </div>
 
+    <!-- Search Results Section -->
+    <div class="container mt-5" id="searchResultsContainer" style="display: none;">
+        <h2 class="section-title">Xe tìm kiếm</h2>
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Bộ lọc tìm kiếm</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="searchFilterForm">
+                            <div class="mb-3">
+                                <label for="categoryFilter" class="form-label">Danh mục</label>
+                                <select class="form-select" id="categoryFilter" name="category">
+                                    <option value="">Tất cả danh mục</option>
+                                    <!-- Filled by JavaScript -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Khoảng giá</label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="number" class="form-control" id="minPriceFilter" name="min_price" placeholder="Từ">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="number" class="form-control" id="maxPriceFilter" name="max_price" placeholder="Đến">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Lọc kết quả</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Tìm kiếm</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="searchSidebarForm">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="searchSidebarInput" placeholder="Tìm kiếm xe..." required>
+                                <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div id="searchResultSummary" class="mb-3"></div>
+                <div class="row" id="searchResults"></div>
+            </div>
+        </div>
+        <div class="text-center mt-4 mb-5">
+            <button id="backToHomeBtn" class="btn btn-outline-primary">Xem tất cả xe</button>
+        </div>
+    </div>
+
     <!-- Featured Products -->
     <div class="container mt-5">
-        <h2 class="section-title">Xe nổi bật</h2>
+        <h2 class="section-title">Xe gợi ý cho bạn</h2>
         <div class="row">
             @foreach($featuredProducts as $product)
                 <div class="col-md-6 col-lg-3 mb-4 product-card">
@@ -795,11 +852,10 @@
     
     <!-- Custom JavaScript -->
     <script>
-        // Product card animation
         document.addEventListener('DOMContentLoaded', function() {
+            // Product card animation
             const productCards = document.querySelectorAll('.product-card');
             
-            // Intersection Observer for animation
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -807,9 +863,7 @@
                         observer.unobserve(entry.target);
                     }
                 });
-            }, {
-                threshold: 0.1
-            });
+            }, { threshold: 0.1 });
             
             productCards.forEach(card => {
                 observer.observe(card);
@@ -821,6 +875,261 @@
                 .then(data => {
                     document.getElementById('cart-count').textContent = data.count;
                 });
+            
+            // Search functionality
+            const searchForm = document.getElementById('searchForm');
+            const searchInput = document.getElementById('searchInput');
+            const searchSidebarForm = document.getElementById('searchSidebarForm');
+            const searchSidebarInput = document.getElementById('searchSidebarInput');
+            const searchFilterForm = document.getElementById('searchFilterForm');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const minPriceFilter = document.getElementById('minPriceFilter');
+            const maxPriceFilter = document.getElementById('maxPriceFilter');
+            const searchResultsContainer = document.getElementById('searchResultsContainer');
+            const searchResultSummary = document.getElementById('searchResultSummary');
+            const searchResults = document.getElementById('searchResults');
+            const backToHomeBtn = document.getElementById('backToHomeBtn');
+            
+            // All content sections to hide/show
+            const mainContentSections = document.querySelectorAll('.container.mt-5:not(#searchResultsContainer)');
+            const ctaSection = document.querySelector('.bg-primary');
+            
+            // Store current search query and filters
+            let currentSearchParams = {
+                query: '',
+                category: '',
+                min_price: '',
+                max_price: ''
+            };
+            
+            // Function to perform search with all parameters
+            function performSearch(params = {}) {
+                // Merge new params with current params
+                currentSearchParams = {...currentSearchParams, ...params};
+                
+                // Build query string
+                const queryParams = new URLSearchParams();
+                for (const [key, value] of Object.entries(currentSearchParams)) {
+                    if (value) queryParams.append(key, value);
+                }
+                
+                // Display loading indicator
+                searchResults.innerHTML = '<div class="col-12 text-center my-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tìm kiếm...</span></div></div>';
+                
+                // Hide regular content, show search results
+                mainContentSections.forEach(section => {
+                    section.style.display = 'none';
+                });
+                if (ctaSection) ctaSection.style.display = 'none';
+                searchResultsContainer.style.display = 'block';
+                
+                // Fetch search results
+                fetch(`/search?${queryParams.toString()}`)
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Search response:', data);
+                        if (data.success === false) {
+                            searchResults.innerHTML = `<div class="col-12 text-center"><p>${data.message || 'Đã xảy ra lỗi khi tìm kiếm.'}</p></div>`;
+                            return;
+                        }
+                        
+                        // Update category filter options if not already populated
+                        if (data.categories && categoryFilter.options.length <= 1) {
+                            data.categories.forEach(category => {
+                                const option = document.createElement('option');
+                                option.value = category.slug;
+                                option.textContent = category.name;
+                                if (currentSearchParams.category === category.slug) {
+                                    option.selected = true;
+                                }
+                                categoryFilter.appendChild(option);
+                            });
+                        }
+                        
+                        // Update current filter values
+                        if (data.filters) {
+                            categoryFilter.value = data.filters.category || '';
+                            minPriceFilter.value = data.filters.min_price || '';
+                            maxPriceFilter.value = data.filters.max_price || '';
+                        }
+                        
+                        // Update search result summary
+                        const queryText = currentSearchParams.query ? ` cho "${currentSearchParams.query}"` : '';
+                        searchResultSummary.innerHTML = `
+                            <div class="alert alert-info">
+                                <strong>Tìm thấy ${data.count} kết quả${queryText}</strong>
+                                ${currentSearchParams.category ? `<br><span class="badge bg-secondary me-1">Danh mục: ${currentSearchParams.category}</span>` : ''}
+                                ${currentSearchParams.min_price ? `<span class="badge bg-secondary me-1">Giá từ: $${currentSearchParams.min_price}</span>` : ''}
+                                ${currentSearchParams.max_price ? `<span class="badge bg-secondary me-1">Giá đến: $${currentSearchParams.max_price}</span>` : ''}
+                                ${Object.values(currentSearchParams).some(v => v) ? `<button id="clearFiltersBtn" class="btn btn-sm btn-outline-secondary float-end">Xóa bộ lọc</button>` : ''}
+                            </div>
+                        `;
+                        
+                        // Add event listener to clear filters button
+                        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+                        if (clearFiltersBtn) {
+                            clearFiltersBtn.addEventListener('click', () => {
+                                currentSearchParams = {
+                                    query: '',
+                                    category: '',
+                                    min_price: '',
+                                    max_price: ''
+                                };
+                                categoryFilter.value = '';
+                                minPriceFilter.value = '';
+                                maxPriceFilter.value = '';
+                                searchInput.value = '';
+                                searchSidebarInput.value = '';
+                                performSearch();
+                            });
+                        }
+                        
+                        if (data.products && data.products.length > 0) {
+                            // Clear results container
+                            searchResults.innerHTML = '';
+                            
+                            // Add each product to results
+                            data.products.forEach(product => {
+                                // Safely access properties with null checks
+                                const productName = product.name || 'Unknown';
+                                const productSlug = product.slug || 'unknown';
+                                const productImage = product.image ? `/storage/${product.image}` : '/images/no-image.jpg';
+                                const productDetails = product.details || 'No details available';
+                                const productPrice = product.price || 0;
+                                const productSalePrice = product.sale_price || 0;
+                                const finalPrice = product.on_sale && productSalePrice > 0 ? productSalePrice : productPrice;
+                                const categoryName = product.category_name || 'Uncategorized';
+                                
+                                // Determine which badge to show
+                                let badgeHtml = '';
+                                if (product.is_new) {
+                                    badgeHtml = '<div class="product-badge badge-new">New</div>';
+                                } else if (product.on_sale) {
+                                    badgeHtml = '<div class="product-badge badge-sale">Sale</div>';
+                                } else if (product.featured) {
+                                    badgeHtml = '<div class="product-badge badge-featured">Featured</div>';
+                                }
+                                
+                                const productEl = document.createElement('div');
+                                productEl.className = 'col-md-6 col-lg-4 mb-4 product-card';
+                                
+                                productEl.innerHTML = `
+                                    <div class="card h-100 position-relative">
+                                        ${badgeHtml}
+                                        
+                                        <div class="wishlist-btn">
+                                            <i class="far fa-bookmark"></i>
+                                        </div>
+                                        
+                                        <img src="${productImage}" class="card-img-top" alt="${productName}" onerror="this.src='/images/no-image.jpg'">
+                                        
+                                        <div class="card-body p-3">
+                                            <span class="badge bg-secondary mb-2">${categoryName}</span>
+                                            <h5 class="product-title">${productName}</h5>
+                                            <p class="product-specs">${productDetails}</p>
+                                            
+                                            <div class="product-features">
+                                                <div class="feature">
+                                                    <i class="fas fa-tachometer-alt"></i>
+                                                    <span>${Math.floor(Math.random() * 2480) + 20} Miles</span>
+                                                </div>
+                                                <div class="feature">
+                                                    <i class="fas fa-gas-pump"></i>
+                                                    <span>${['Petrol', 'Diesel', 'Hybrid', 'Electric'][Math.floor(Math.random() * 4)]}</span>
+                                                </div>
+                                                <div class="feature">
+                                                    <i class="fas fa-cog"></i>
+                                                    <span>${['Automatic', 'Manual'][Math.floor(Math.random() * 2)]}</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="product-price">
+                                                $${finalPrice.toLocaleString()}
+                                                ${product.on_sale && productSalePrice > 0 ? 
+                                                    `<small class="text-muted text-decoration-line-through ms-2">$${productPrice.toLocaleString()}</small>` : ''}
+                                            </div>
+                                            
+                                            <a href="/products/${productSlug}" class="view-details">
+                                                View Details <i class="fas fa-arrow-right"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                `;
+                                searchResults.appendChild(productEl);
+                            });
+                        } else {
+                            searchResults.innerHTML = '<div class="col-12 text-center"><p>Không tìm thấy xe nào phù hợp với tiêu chí tìm kiếm.</p></div>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                        searchResults.innerHTML = '<div class="col-12 text-center"><p>Đã xảy ra lỗi khi tìm kiếm. Vui lòng thử lại sau.</p><p class="text-muted small">Chi tiết lỗi: ' + error.message + '</p></div>';
+                    });
+            }
+            
+            // Search form submission (main navbar)
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const query = searchInput.value.trim();
+                
+                if (query.length > 0) {
+                    searchSidebarInput.value = query;
+                    performSearch({ query });
+                }
+            });
+            
+            // Search form in sidebar
+            searchSidebarForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const query = searchSidebarInput.value.trim();
+                
+                if (query.length > 0) {
+                    searchInput.value = query;
+                    performSearch({ query });
+                }
+            });
+            
+            // Filter form submission
+            searchFilterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                performSearch({
+                    category: categoryFilter.value,
+                    min_price: minPriceFilter.value,
+                    max_price: maxPriceFilter.value
+                });
+            });
+            
+            // Back to home button
+            backToHomeBtn.addEventListener('click', function() {
+                // Hide search results, show regular content
+                searchResultsContainer.style.display = 'none';
+                mainContentSections.forEach(section => {
+                    section.style.display = 'block';
+                });
+                if (ctaSection) ctaSection.style.display = 'block';
+                
+                // Clear search parameters
+                currentSearchParams = {
+                    query: '',
+                    category: '',
+                    min_price: '',
+                    max_price: ''
+                };
+                
+                // Clear search inputs
+                searchInput.value = '';
+                searchSidebarInput.value = '';
+                categoryFilter.value = '';
+                minPriceFilter.value = '';
+                maxPriceFilter.value = '';
+            });
         });
     </script>
 </body>

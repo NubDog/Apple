@@ -1,39 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Models\Category;
-use App\Models\Product;
-use App\Models\Slider;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
-class HomeController extends Controller
+class SearchController extends Controller
 {
-    /**
-     * Display the home page
-     */
-    public function index()
-    {
-        $sliders = Slider::active()->ordered()->take(5)->get();
-        $featuredProducts = Product::featured()->take(8)->get();
-        $newProducts = Product::new()->orderBy('created_at', 'desc')->take(8)->get();
-        $saleProducts = Product::onSale()->take(8)->get();
-        $popularProducts = Product::withCount('orderItems')->orderBy('order_items_count', 'desc')->take(8)->get();
-        $categories = Category::all();
-
-        return view('home', compact(
-            'sliders',
-            'featuredProducts',
-            'newProducts',
-            'saleProducts',
-            'popularProducts',
-            'categories'
-        ));
-    }
-
-    /**
-     * Search for products
-     */
     public function search(Request $request)
     {
         try {
@@ -42,44 +17,62 @@ class HomeController extends Controller
             $minPrice = $request->input('min_price');
             $maxPrice = $request->input('max_price');
             
-            $productsQuery = Product::query()
-                ->with('category')
+            Log::info('Search query received: ' . $query);
+            
+            // Kiểm tra xem bảng products có tồn tại không
+            if (!DB::getSchemaBuilder()->hasTable('products')) {
+                Log::error('Products table does not exist');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bảng dữ liệu chưa được khởi tạo',
+                    'products' => []
+                ]);
+            }
+            
+            // Sử dụng DB query builder thay vì model
+            $productsQuery = DB::table('products')
+                ->select('products.id', 'products.name', 'products.slug', 'products.image', 
+                         'products.details', 'products.price', 'products.sale_price', 
+                         'products.featured', 'products.is_new', 'products.on_sale',
+                         'categories.name as category_name')
+                ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
                 ->where(function($q) use ($query) {
-                    $q->where('name', 'like', "%{$query}%")
-                      ->orWhere('description', 'like', "%{$query}%")
-                      ->orWhere('details', 'like', "%{$query}%");
+                    $q->where('products.name', 'like', "%{$query}%")
+                      ->orWhere('products.description', 'like', "%{$query}%")
+                      ->orWhere('products.details', 'like', "%{$query}%");
                 });
                 
             // Apply category filter if provided
             if ($category) {
-                $productsQuery->whereHas('category', function($q) use ($category) {
-                    $q->where('slug', $category);
-                });
+                $productsQuery->where('categories.slug', $category);
             }
             
             // Apply price range filters if provided
             if ($minPrice) {
                 $productsQuery->where(function($q) use ($minPrice) {
-                    $q->where('price', '>=', $minPrice)
-                      ->orWhere('sale_price', '>=', $minPrice);
+                    $q->where('products.price', '>=', $minPrice)
+                      ->orWhere('products.sale_price', '>=', $minPrice);
                 });
             }
             
             if ($maxPrice) {
                 $productsQuery->where(function($q) use ($maxPrice) {
-                    $q->where('price', '<=', $maxPrice)
+                    $q->where('products.price', '<=', $maxPrice)
                       ->orWhere(function($sq) use ($maxPrice) {
-                          $sq->where('sale_price', '<=', $maxPrice)
-                             ->where('sale_price', '>', 0);
+                          $sq->where('products.sale_price', '<=', $maxPrice)
+                             ->where('products.sale_price', '>', 0);
                       });
                 });
             }
             
             $products = $productsQuery->get();
+                
+            Log::info('Search found ' . $products->count() . ' products');
             
             // Get all categories for filter options
-            $categories = Category::select('id', 'name', 'slug')->get();
+            $categories = DB::table('categories')->select('id', 'name', 'slug')->get();
             
+            // Xử lý dữ liệu trả về để đảm bảo có đủ các trường
             $formattedProducts = $products->map(function($product) {
                 return [
                     'id' => $product->id,
@@ -92,7 +85,7 @@ class HomeController extends Controller
                     'is_new' => (bool) $product->is_new,
                     'on_sale' => (bool) $product->on_sale,
                     'featured' => (bool) $product->featured,
-                    'category_name' => $product->category ? $product->category->name : 'Uncategorized'
+                    'category_name' => $product->category_name
                 ];
             });
             
@@ -109,6 +102,9 @@ class HomeController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
+            Log::error('Search error: ' . $e->getMessage());
+            Log::error('Error trace: ' . $e->getTraceAsString());
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Đã xảy ra lỗi khi tìm kiếm: ' . $e->getMessage(),
