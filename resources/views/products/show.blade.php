@@ -106,7 +106,7 @@
             <div class="card contact-seller-card p-3 mb-3">
                 <div class="d-flex align-items-center mb-3">
                     <div class="avatar me-3">
-                        <img src="{{ asset('images/default-avatar.jpg') }}" class="rounded-circle" width="50" height="50" alt="Seller">
+                        <img src="{{ asset('storage/3aae9c20-e837-4e83-8e2f-f4e2f5e9a6c2.png') }}" class="rounded-circle" width="50" height="50" alt="Seller">
                     </div>
                     <div>
                         <h5 class="mb-0">{{ isset($product->seller) ? $product->seller->name : 'Admin' }}</h5>
