@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
-use App\Http\Controllers\Admin\CouponController as AdminCouponController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -112,7 +112,11 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::patch('/contacts/{contact}/update-status', [AdminContactController::class, 'updateStatus'])->name('admin.contacts.update-status');
     
     // Admin Coupon management
-    Route::resource('coupons', AdminCouponController::class, ['as' => 'admin']);
+    Route::resource('coupons', CouponController::class, ['as' => 'admin']);
+    Route::post('coupons/{coupon}/status', [CouponController::class, 'updateStatus'])->name('admin.coupons.status');
+    Route::post('coupons/{coupon}/clone', [CouponController::class, 'clone'])->name('admin.coupons.clone');
+    Route::post('coupons/bulk-delete', [CouponController::class, 'bulkDelete'])->name('admin.coupons.bulk-delete');
+    Route::post('coupons/bulk-status', [CouponController::class, 'bulkStatus'])->name('admin.coupons.bulk-status');
 });
 
 require __DIR__.'/auth.php';
