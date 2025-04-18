@@ -1,0 +1,7 @@
+Khi cô lấy dự án của em về thì có thể cô sẻ bị lỗi và không load được hình ảnh từ database.
+Lỗi này là do symbolic link public/storage không hoạt động đúng khi chuyển dự án từ máy này sáng máy khác.
+Nếu cô bị lỗi này thì hãy làm theo 3 bước sau để khắc phục.
+
+1. Đảm bảo FILESYSTEM_DISK=local trong tệp .env
+2. Chạy php artisan storage:link để tạo symlink
+3. Nếu symlink đã tồn tại nhưng không hoạt động, xóa nó (rm -Force public/storage trên Windows) và tạo lại
