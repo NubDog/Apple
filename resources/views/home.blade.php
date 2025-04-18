@@ -7,6 +7,7 @@
     <title>Shark Car - Trang chủ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
         /* Custom styles */
         :root {
@@ -47,96 +48,141 @@
         
         .hero-slider {
             position: relative;
-            height: 70vh;
-            overflow: hidden;
+            margin-bottom: 3rem;
         }
         
-        .slider-container {
-            width: 100%;
-            height: 100%;
-            position: relative;
+        .carousel-item {
+            height: 80vh;
+            background-color: #000;
         }
         
-        .slider-wrapper {
-            height: 100%;
-            transition: transform 0.5s ease;
-        }
-        
-        .slide {
-            height: 100%;
-            display: none;
-            position: absolute;
-            width: 100%;
-        }
-        
-        .slide.active {
-            display: block;
-        }
-        
-        .slide img {
-            width: 100%;
+        .carousel-item img {
             height: 100%;
             object-fit: cover;
+            opacity: 0.7;
         }
         
-        .slide-content {
-            position: absolute;
+        .carousel-caption.slide-content {
+            text-align: left;
+            left: 10%;
+            right: 10%;
             top: 50%;
-            left: 50px;
+            bottom: auto;
             transform: translateY(-50%);
-            color: white;
             max-width: 600px;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
         }
         
         .slide-content h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
+            font-weight: 700;
             margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         
         .slide-content p {
             font-size: 1.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
         }
         
-        .slider-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            width: 50px;
-            height: 50px;
+        .carousel-indicators {
+            margin-bottom: 2rem;
+        }
+        
+        .carousel-indicators button {
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            transition: all 0.3s;
+            margin: 0 6px;
+            background-color: rgba(255,255,255,0.5);
+            border: none;
+            transition: all 0.3s ease;
         }
         
-        .slider-nav:hover {
-            background: rgba(0, 0, 0, 0.8);
+        .carousel-indicators button.active {
+            width: 30px;
+            border-radius: 6px;
+            background-color: var(--primary-color);
         }
         
-        .slider-nav.prev {
-            left: 20px;
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 5%;
+            opacity: 0;
+            transition: all 0.3s ease;
         }
         
-        .slider-nav.next {
-            right: 20px;
+        .hero-slider:hover .carousel-control-prev,
+        .hero-slider:hover .carousel-control-next {
+            opacity: 1;
         }
         
-        .slider-arrow {
-            font-style: normal;
-            font-size: 16px;
-            line-height: 1;
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            vertical-align: middle;
+        .carousel-item .btn-primary {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background-color: var(--primary-color);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-item .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        /* Animation classes */
+        .carousel-item h1,
+        .carousel-item p,
+        .carousel-item .btn {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+        }
+        
+        .carousel-item.active h1 {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.3s;
+        }
+        
+        .carousel-item.active p {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.6s;
+        }
+        
+        .carousel-item.active .btn {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.9s;
+        }
+        
+        /* Fade transition */
+        .carousel-fade .carousel-item {
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+        }
+        
+        .carousel-fade .carousel-item.active {
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .carousel-item {
+                height: 60vh;
+            }
+            
+            .slide-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .slide-content p {
+                font-size: 1.2rem;
+            }
         }
         
         .section-title {
@@ -584,32 +630,34 @@
     </nav>
 
     <!-- Hero Slider -->
-    <div id="heroSlider" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-            @foreach($sliders as $index => $slider)
-                <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="{{ $index }}" class="{{ $index == 0 ? 'active' : '' }}"></button>
-            @endforeach
-        </div>
-        <div class="carousel-inner">
-            @foreach($sliders as $index => $slider)
-                <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
-                    <img src="{{ asset('storage/' . $slider->image) }}" class="d-block w-100" alt="{{ $slider->title }}">
-                    <div class="carousel-caption hero-content text-start">
-                        <h1>{{ $slider->title }}</h1>
-                        <p>{{ $slider->subtitle }}</p>
-                        <a href="{{ $slider->link }}" class="btn btn-primary">Khám phá ngay</a>
+    <div class="hero-slider">
+        <div id="mainCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                @foreach($sliders as $index => $slider)
+                    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index == 0 ? 'active' : '' }}" aria-current="{{ $index == 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}"></button>
+                @endforeach
+            </div>
+            <div class="carousel-inner">
+                @foreach($sliders as $index => $slider)
+                    <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                        <img src="{{ asset('storage/' . $slider->image) }}" class="d-block w-100" alt="{{ $slider->title }}">
+                        <div class="carousel-caption slide-content">
+                            <h1 class="animate__animated animate__fadeInDown">{{ $slider->title }}</h1>
+                            <p class="animate__animated animate__fadeInUp">{{ $slider->subtitle }}</p>
+                            <a href="{{ $slider->link }}" class="btn btn-primary btn-lg animate__animated animate__fadeInUp">Khám phá ngay</a>
+                        </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
         </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#heroSlider" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#heroSlider" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
     </div>
 
     <!-- Search Results Section -->
