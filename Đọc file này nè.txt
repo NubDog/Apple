@@ -5,3 +5,6 @@ Nếu cô bị lỗi này thì hãy làm theo 3 bước sau để khắc phục.
 1. Đảm bảo FILESYSTEM_DISK=local trong tệp .env
 2. Chạy php artisan storage:link để tạo symlink
 3. Nếu symlink đã tồn tại nhưng không hoạt động, xóa nó (rm -Force public/storage trên Windows) và tạo lại
+
+Ngoải ra thì cái web của em nó to và nhiều tính năng quá nên em không thể test hết toàn bộ được.
+Nếu cô thấy có lỗi hoặc tính năng chưa hoàn thiện thì cô có thể nhắn em để em sửa và bổ sung.
