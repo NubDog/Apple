@@ -18,20 +18,19 @@ class Order extends Model
      */
     protected $fillable = [
         'user_id',
-        'status',
-        'total',
-        'subtotal',
-        'tax',
-        'shipping_cost',
-        'discount',
-        'coupon_code',
         'shipping_name',
         'shipping_email',
         'shipping_phone',
         'shipping_address',
-        'shipping_method',
+        'payment_method',
+        'subtotal',
+        'shipping_fee',
+        'discount',
+        'total',
+        'status',
         'notes',
-        'payment_method'
+        'cancel_reason',
+        'canceled_at',
     ];
 
     /**
@@ -40,15 +39,11 @@ class Order extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'total' => 'decimal:2',
-        'subtotal' => 'decimal:2',
-        'tax' => 'decimal:2',
-        'shipping_cost' => 'decimal:2',
-        'discount' => 'decimal:2',
+        'canceled_at' => 'datetime',
     ];
 
     /**
-     * Get the user that owns the order
+     * Get the user that owns the order.
      */
     public function user(): BelongsTo
     {
@@ -56,7 +51,7 @@ class Order extends Model
     }
 
     /**
-     * Get the order items for the order
+     * Get the order items for the order.
      */
     public function items(): HasMany
     {

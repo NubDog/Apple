@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Route;
 // Front-end routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [HomeController::class, 'search'])->name('search');
+Route::get('/dashboard', [UserProfileController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
 // Product routes
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
@@ -117,6 +118,17 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('coupons/{coupon}/clone', [CouponController::class, 'clone'])->name('admin.coupons.clone');
     Route::post('coupons/bulk-delete', [CouponController::class, 'bulkDelete'])->name('admin.coupons.bulk-delete');
     Route::post('coupons/bulk-status', [CouponController::class, 'bulkStatus'])->name('admin.coupons.bulk-status');
+});
+
+// User Account Routes
+Route::middleware(['auth'])->prefix('my-account')->name('user.')->group(function () {
+    Route::get('/', [App\Http\Controllers\UserController::class, 'account'])->name('account');
+    Route::put('/update-profile', [App\Http\Controllers\UserController::class, 'updateProfile'])->name('update-profile');
+    Route::put('/change-password', [App\Http\Controllers\UserController::class, 'changePassword'])->name('change-password');
+    Route::put('/update-avatar', [App\Http\Controllers\UserController::class, 'updateAvatar'])->name('update-avatar');
+    Route::get('/orders', [App\Http\Controllers\UserController::class, 'orders'])->name('orders');
+    Route::get('/orders/{order}', [App\Http\Controllers\UserController::class, 'orderDetail'])->name('orders.detail');
+    Route::post('/orders/cancel', [App\Http\Controllers\UserController::class, 'cancelOrder'])->name('orders.cancel');
 });
 
 require __DIR__.'/auth.php';

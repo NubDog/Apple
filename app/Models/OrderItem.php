@@ -18,10 +18,9 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'product_id',
-        'product_name',
-        'price',
         'quantity',
-        'subtotal'
+        'price',
+        'options',
     ];
 
     /**
@@ -30,12 +29,11 @@ class OrderItem extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'price' => 'decimal:2',
-        'subtotal' => 'decimal:2',
+        'options' => 'array',
     ];
 
     /**
-     * Get the order that owns the order item
+     * Get the order that owns the order item.
      */
     public function order(): BelongsTo
     {
@@ -43,7 +41,7 @@ class OrderItem extends Model
     }
 
     /**
-     * Get the product that owns the order item
+     * Get the product that owns the order item.
      */
     public function product(): BelongsTo
     {

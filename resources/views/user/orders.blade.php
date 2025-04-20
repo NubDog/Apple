@@ -4,105 +4,168 @@
 <div class="container py-5 animate__animated animate__fadeIn">
     <div class="row justify-content-center">
         <div class="col-lg-10">
+            <!-- Alerts -->
+            @include('components.alert')
+            
             <!-- Page Header -->
             <div class="page-header d-flex align-items-center mb-4">
                 <div class="icon-circle bg-primary text-white me-3 animate__animated animate__bounceIn">
                     <i class="fas fa-shopping-bag"></i>
                 </div>
-                <h2 class="page-title mb-0">Đơn hàng của tôi</h2>
+                <div>
+                    <h2 class="page-title mb-0">Đơn hàng của tôi</h2>
+                    <p class="text-muted mb-0">
+                        <i class="far fa-clock me-1"></i> Quản lý và theo dõi đơn hàng
+                    </p>
+                </div>
             </div>
             
-            <!-- Orders Container -->
-            <div class="card orders-card shadow-lg">
-                <div class="card-body p-0">
-                    <!-- Order Statistics -->
-                    <div class="order-stats p-4 mb-4">
-                        <div class="row g-4">
-                            <div class="col-sm-4 animate__animated animate__fadeInUp">
-                                <div class="stat-card stat-total">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-receipt"></i>
-                                    </div>
-                                    <div class="stat-info">
-                                        <h4>{{ $orders->total() }}</h4>
-                                        <p>Tổng đơn hàng</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
-                                <div class="stat-card stat-processing">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-spinner fa-spin"></i>
-                                    </div>
-                                    <div class="stat-info">
-                                        <h4>{{ $orders->where('status', 'Đang xử lý')->count() }}</h4>
-                                        <p>Đang xử lý</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
-                                <div class="stat-card stat-completed">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-check-circle"></i>
-                                    </div>
-                                    <div class="stat-info">
-                                        <h4>{{ $orders->where('status', 'Hoàn thành')->count() }}</h4>
-                                        <p>Hoàn thành</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Orders Card -->
+            <div class="card orders-card shadow-lg mb-4 animate__animated animate__fadeInUp">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-list me-2"></i>Danh sách đơn hàng
                     </div>
-                    
-                    @if($orders->count() > 0)
-                        <!-- Orders List -->
-                        <div class="orders-list px-4">
-                            @foreach($orders as $order)
-                                <div class="order-item animate__animated animate__fadeInUp" style="animation-delay: {{ $loop->index * 0.1 }}s">
-                                    <div class="order-header">
-                                        <div class="order-id">
-                                            <i class="fas fa-hashtag"></i> Đơn hàng #{{ $order->id }}
-                                        </div>
-                                        <div class="order-date">
-                                            <i class="far fa-calendar-alt"></i> {{ $order->created_at->format('d/m/Y H:i') }}
-                                        </div>
-                                    </div>
-                                    <div class="order-body">
-                                        <div class="order-status">
-                                            <span class="status-badge status-{{ strtolower(str_replace(' ', '-', $order->status)) }}">
-                                                <i class="fas fa-circle status-dot"></i> {{ $order->status }}
-                                            </span>
-                                        </div>
-                                        <div class="order-total">
-                                            <span class="amount">{{ number_format($order->total, 0, ',', '.') }}đ</span>
-                                        </div>
-                                        <div class="order-action">
-                                            <a href="{{ route('user.order.detail', $order->id) }}" class="btn btn-sm btn-view-detail">
-                                                Xem chi tiết <i class="fas fa-chevron-right ms-1"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
+                    <a href="{{ route('products.index') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus-circle me-1"></i> Mua sắm ngay
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    @if(count($orders) > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover table-orders mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">#Mã</th>
+                                        <th scope="col">Ngày đặt</th>
+                                        <th scope="col">Tổng tiền</th>
+                                        <th scope="col">Trạng thái</th>
+                                        <th scope="col">Thanh toán</th>
+                                        <th scope="col" class="text-end">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($orders as $order)
+                                        <tr class="order-row animate__animated animate__fadeIn" style="animation-delay: {{ $loop->index * 0.05 }}s">
+                                            <td>
+                                                <span class="order-id">#{{ $order->id }}</span>
+                                            </td>
+                                            <td>
+                                                <div class="order-date">
+                                                    <div class="date">{{ $order->created_at->format('d/m/Y') }}</div>
+                                                    <div class="time text-muted">{{ $order->created_at->format('H:i') }}</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="order-total">{{ number_format($order->total, 0, ',', '.') }}đ</span>
+                                            </td>
+                                            <td>
+                                                @php
+                                                    $statusClass = [
+                                                        'Chờ xác nhận' => 'bg-warning',
+                                                        'Đang xử lý' => 'bg-info',
+                                                        'Đang vận chuyển' => 'bg-primary',
+                                                        'Hoàn thành' => 'bg-success',
+                                                        'Đã hủy' => 'bg-danger'
+                                                    ][$order->status] ?? 'bg-secondary';
+                                                @endphp
+                                                <span class="order-status badge {{ $statusClass }}">
+                                                    {{ $order->status }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="order-payment">{{ $order->payment_method }}</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <a href="{{ route('user.orders.detail', $order->id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> Chi tiết
+                                                </a>
+                                                @if($order->status == 'Chờ xác nhận')
+                                                    <button class="btn btn-sm btn-outline-danger ms-1 cancel-order-btn" data-bs-toggle="modal" data-bs-target="#cancelOrderModal" data-order-id="{{ $order->id }}">
+                                                        <i class="fas fa-times-circle"></i> Hủy
+                                                    </button>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                         
-                        <!-- Pagination -->
-                        <div class="pagination-container p-4 mt-3">
+                        <div class="pagination-container p-3">
                             {{ $orders->links() }}
                         </div>
                     @else
-                        <!-- Empty State -->
-                        <div class="empty-state text-center py-5 animate__animated animate__fadeIn">
-                            <div class="empty-icon mb-4">
-                                <i class="fas fa-shopping-cart"></i>
+                        <div class="empty-orders text-center py-5">
+                            <div class="empty-icon mb-3">
+                                <i class="fas fa-shopping-basket fa-4x text-muted"></i>
                             </div>
-                            <h4 class="mb-3">Bạn chưa có đơn hàng nào</h4>
-                            <p class="text-muted mb-4">Hãy khám phá các sản phẩm của chúng tôi và đặt hàng ngay!</p>
-                            <a href="{{ route('products.index') }}" class="btn btn-primary btn-shop-now">
-                                <i class="fas fa-shopping-basket me-2"></i> Mua sắm ngay
+                            <h3 class="empty-title">Chưa có đơn hàng nào</h3>
+                            <p class="empty-description text-muted">Bạn chưa có đơn hàng nào. Hãy khám phá sản phẩm và đặt hàng ngay!</p>
+                            <a href="{{ route('products.index') }}" class="btn btn-primary mt-3">
+                                <i class="fas fa-shopping-cart me-2"></i> Mua sắm ngay
                             </a>
                         </div>
                     @endif
+                </div>
+            </div>
+            
+            <!-- Order Stats -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+                        <div class="stat-card-body">
+                            <div class="stat-card-icon pending">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <div class="stat-card-value">{{ $orders->where('status', 'Chờ xác nhận')->count() }}</div>
+                                <div class="stat-card-title">Chờ xác nhận</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+                        <div class="stat-card-body">
+                            <div class="stat-card-icon processing">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <div class="stat-card-value">{{ $orders->where('status', 'Đang xử lý')->count() }}</div>
+                                <div class="stat-card-title">Đang xử lý</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+                        <div class="stat-card-body">
+                            <div class="stat-card-icon shipping">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <div class="stat-card-value">{{ $orders->where('status', 'Đang vận chuyển')->count() }}</div>
+                                <div class="stat-card-title">Đang vận chuyển</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+                        <div class="stat-card-body">
+                            <div class="stat-card-icon completed">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <div class="stat-card-value">{{ $orders->where('status', 'Hoàn thành')->count() }}</div>
+                                <div class="stat-card-title">Hoàn thành</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -116,26 +179,75 @@
     </div>
 </div>
 
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận hủy đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn hủy đơn hàng này không?</p>
+                <p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i> Lưu ý: Hành động này không thể hoàn tác.</p>
+                
+                <form action="{{ route('user.orders.cancel') }}" method="POST" id="cancelOrderForm">
+                    @csrf
+                    @method('POST')
+                    <input type="hidden" name="order_id" id="cancelOrderId">
+                    
+                    <div class="mb-3">
+                        <label for="cancel_reason" class="form-label">Lý do hủy đơn</label>
+                        <select class="form-select" id="cancel_reason" name="reason" required>
+                            <option value="">-- Chọn lý do --</option>
+                            <option value="Đổi ý không muốn mua nữa">Đổi ý không muốn mua nữa</option>
+                            <option value="Muốn thay đổi sản phẩm">Muốn thay đổi sản phẩm</option>
+                            <option value="Tìm thấy giá tốt hơn ở nơi khác">Tìm thấy giá tốt hơn ở nơi khác</option>
+                            <option value="Thay đổi phương thức thanh toán">Thay đổi phương thức thanh toán</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3" id="otherReasonContainer" style="display: none;">
+                        <label for="other_reason" class="form-label">Lý do khác</label>
+                        <textarea class="form-control" id="other_reason" name="other_reason" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" onclick="document.getElementById('cancelOrderForm').submit()">
+                    <i class="fas fa-times-circle me-1"></i> Hủy đơn hàng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 <style>
-    /* Variables */
     :root {
         --primary: #4361ee;
         --secondary: #3f37c9;
         --success: #4cc9f0;
         --info: #4895ef;
-        --warning: #f72585;
+        --warning: #ffb703;
         --danger: #e63946;
         --light: #f8f9fa;
         --dark: #212529;
-        --processing: #ffb703;
+        --pending: #ffb703;
+        --processing: #3a86ff;
+        --shipping: #4895ef;
         --completed: #06d6a0;
-        --canceled: #ef476f;
+        --canceled: #e63946;
         --gray-100: #f8f9fa;
         --gray-200: #e9ecef;
         --gray-300: #dee2e6;
+        --gray-400: #ced4da;
+        --gray-500: #adb5bd;
+        --gray-600: #6c757d;
         --border-radius: 1rem;
         --card-radius: 1.5rem;
     }
@@ -163,34 +275,137 @@
     }
     
     /* Cards */
-    .orders-card {
+    .card {
         border: none;
         border-radius: var(--card-radius);
         overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         transition: all 0.3s ease;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
     
-    .orders-card:hover {
+    .card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
     }
     
-    /* Order Stats */
-    .order-stats {
-        background: linear-gradient(to right, var(--primary), var(--secondary));
-        border-radius: var(--border-radius) var(--border-radius) 0 0;
+    .card-header {
+        font-weight: 600;
+        background-color: rgba(0, 0, 0, 0.03);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1rem 1.5rem;
     }
     
-    .stat-card {
-        background-color: rgba(255, 255, 255, 0.9);
-        border-radius: var(--border-radius);
+    .card-body {
         padding: 1.5rem;
+    }
+    
+    /* Order Table */
+    .table-orders {
+        margin-bottom: 0;
+    }
+    
+    .table-orders thead th {
+        background-color: var(--gray-100);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1rem 1.5rem;
+        border: none;
+    }
+    
+    .table-orders tbody td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+        border-color: var(--gray-100);
+    }
+    
+    .order-row {
+        transition: all 0.2s ease;
+    }
+    
+    .order-row:hover {
+        background-color: rgba(var(--primary-rgb), 0.05);
+        transform: translateX(5px);
+    }
+    
+    .order-id {
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    .order-date {
+        line-height: 1.2;
+    }
+    
+    .order-date .date {
+        font-weight: 600;
+    }
+    
+    .order-date .time {
+        font-size: 0.8rem;
+    }
+    
+    .order-total {
+        font-weight: 700;
+        color: var(--dark);
+    }
+    
+    .order-status {
+        padding: 0.5rem 0.75rem;
+        border-radius: 50px;
+        font-weight: 500;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .pagination-container {
         display: flex;
-        align-items: center;
-        transition: all 0.3s ease;
+        justify-content: center;
+        border-top: 1px solid var(--gray-100);
+    }
+    
+    /* Empty state */
+    .empty-orders {
+        padding: 3rem 1rem;
+    }
+    
+    .empty-icon {
+        color: var(--gray-300);
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .empty-title {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .empty-description {
+        max-width: 450px;
+        margin: 0 auto;
+    }
+    
+    @keyframes float {
+        0% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+        100% {
+            transform: translateY(0);
+        }
+    }
+    
+    /* Stat Cards */
+    .stat-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+        background-color: white;
     }
     
     .stat-card:hover {
@@ -198,206 +413,56 @@
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
     
-    .stat-icon {
-        flex-shrink: 0;
-        width: 55px;
-        height: 55px;
-        background: linear-gradient(45deg, var(--primary), var(--info));
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-        margin-right: 1rem;
-        box-shadow: 0 7px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-    
-    .stat-processing .stat-icon {
-        background: linear-gradient(45deg, #ffb703, #fd9e02);
-    }
-    
-    .stat-completed .stat-icon {
-        background: linear-gradient(45deg, #06d6a0, #0ac28a);
-    }
-    
-    .stat-info h4 {
-        font-weight: 700;
-        font-size: 1.5rem;
-        margin-bottom: 0.25rem;
-        color: var(--dark);
-    }
-    
-    .stat-info p {
-        color: #6c757d;
-        margin-bottom: 0;
-        font-size: 0.875rem;
-    }
-    
-    /* Orders List */
-    .orders-list {
-        padding-bottom: 1rem;
-    }
-    
-    .order-item {
-        background-color: white;
-        border-radius: var(--border-radius);
-        margin-bottom: 1.25rem;
-        overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-        transition: all 0.3s ease;
-        border: 1px solid var(--gray-200);
-    }
-    
-    .order-item:hover {
-        transform: translateX(5px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
-        border-color: var(--gray-300);
-    }
-    
-    .order-header {
-        display: flex;
-        justify-content: space-between;
-        padding: 1rem 1.25rem;
-        background-color: var(--gray-100);
-        border-bottom: 1px solid var(--gray-200);
-    }
-    
-    .order-id {
-        font-weight: 600;
-        color: var(--dark);
-    }
-    
-    .order-date {
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-    
-    .order-body {
+    .stat-card-body {
         padding: 1.25rem;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
     }
     
-    /* Status Badges */
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
-        font-weight: 500;
-        font-size: 0.875rem;
-    }
-    
-    .status-dot {
-        font-size: 0.5rem;
-        margin-right: 0.5rem;
-    }
-    
-    .status-đang-xử-lý {
-        background-color: rgba(255, 183, 3, 0.1);
-        color: var(--processing);
-    }
-    
-    .status-hoàn-thành {
-        background-color: rgba(6, 214, 160, 0.1);
-        color: var(--completed);
-    }
-    
-    .status-đã-hủy {
-        background-color: rgba(239, 71, 111, 0.1);
-        color: var(--canceled);
-    }
-    
-    /* Order Amount */
-    .order-total .amount {
-        font-weight: 700;
-        font-size: 1.25rem;
-        color: var(--dark);
-    }
-    
-    /* Order Actions */
-    .btn-view-detail {
-        background: linear-gradient(to right, var(--primary), var(--secondary));
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 0.5rem 1.25rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.15);
-    }
-    
-    .btn-view-detail:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(67, 97, 238, 0.25);
-        color: white;
-    }
-    
-    /* Pagination */
-    .pagination-container .pagination {
-        justify-content: center;
-    }
-    
-    .pagination-container .page-item.active .page-link {
-        background-color: var(--primary);
-        border-color: var(--primary);
-    }
-    
-    .pagination-container .page-link {
-        color: var(--primary);
-        border-radius: 0.5rem;
-        margin: 0 0.25rem;
-    }
-    
-    /* Empty State */
-    .empty-state {
-        padding: 4rem 2rem;
-    }
-    
-    .empty-icon {
-        width: 100px;
-        height: 100px;
-        background: linear-gradient(to right, var(--primary), var(--secondary));
-        border-radius: 50%;
+    .stat-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 3rem;
+        font-size: 1.5rem;
         color: white;
-        margin: 0 auto;
-        box-shadow: 0 10px 30px rgba(67, 97, 238, 0.2);
-        animation: pulse 2s infinite;
+        margin-right: 1rem;
+        flex-shrink: 0;
     }
     
-    @keyframes pulse {
-        0% {
-            box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4);
-        }
-        70% {
-            box-shadow: 0 0 0 15px rgba(67, 97, 238, 0);
-        }
-        100% {
-            box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
-        }
+    .stat-card-icon.pending {
+        background: linear-gradient(45deg, #ffb703, #fd9e02);
     }
     
-    .btn-shop-now {
-        background: linear-gradient(to right, var(--primary), var(--secondary));
-        border: none;
-        border-radius: 50px;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 10px 20px rgba(67, 97, 238, 0.15);
+    .stat-card-icon.processing {
+        background: linear-gradient(45deg, #3a86ff, #4361ee);
     }
     
-    .btn-shop-now:hover {
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 15px 30px rgba(67, 97, 238, 0.25);
+    .stat-card-icon.shipping {
+        background: linear-gradient(45deg, #4895ef, #4cc9f0);
+    }
+    
+    .stat-card-icon.completed {
+        background: linear-gradient(45deg, #06d6a0, #06b89c);
+    }
+    
+    .stat-card-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-card-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-card-title {
+        font-size: 0.875rem;
+        color: var(--gray-600);
     }
     
     /* Back Button */
@@ -417,19 +482,64 @@
         transform: translateX(-5px);
     }
     
+    /* Buttons */
+    .btn-primary {
+        background: linear-gradient(45deg, var(--primary), var(--info));
+        border: none;
+        box-shadow: 0 5px 15px rgba(72, 149, 239, 0.2);
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(45deg, var(--info), var(--primary));
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(72, 149, 239, 0.3);
+    }
+    
+    .btn-outline-primary {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .btn-outline-danger {
+        border-color: var(--danger);
+        color: var(--danger);
+    }
+    
+    .btn-outline-danger:hover {
+        background-color: var(--danger);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
-        .order-body {
-            flex-direction: column;
-            align-items: flex-start;
+        .table-responsive {
+            border-radius: var(--border-radius);
         }
         
-        .order-action {
-            align-self: flex-end;
-            margin-top: 1rem;
+        .order-status {
+            white-space: nowrap;
         }
     }
     
+    @media (max-width: 576px) {
+        .stat-card-body {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .stat-card-icon {
+            margin-right: 0;
+            margin-bottom: 0.75rem;
+        }
+    }
+
     /* Ripple effect */
     .ripple {
         position: absolute;
@@ -452,25 +562,25 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Add floating animation to stat cards
-        const statCards = document.querySelectorAll('.stat-card');
-        statCards.forEach((card, index) => {
-            card.style.animationDelay = `${index * 0.2}s`;
-            card.classList.add('animate__animated', 'animate__fadeInUp');
+        // Handle order cancellation
+        const cancelOrderButtons = document.querySelectorAll('.cancel-order-btn');
+        const cancelOrderIdInput = document.getElementById('cancelOrderId');
+        const cancelReasonSelect = document.getElementById('cancel_reason');
+        const otherReasonContainer = document.getElementById('otherReasonContainer');
+        
+        cancelOrderButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const orderId = this.getAttribute('data-order-id');
+                cancelOrderIdInput.value = orderId;
+            });
         });
         
-        // Add hover effect to order items
-        const orderItems = document.querySelectorAll('.order-item');
-        orderItems.forEach(item => {
-            item.addEventListener('mouseenter', function() {
-                this.style.borderLeftWidth = '5px';
-                this.style.borderLeftColor = 'var(--primary)';
-            });
-            
-            item.addEventListener('mouseleave', function() {
-                this.style.borderLeftWidth = '1px';
-                this.style.borderLeftColor = 'var(--gray-200)';
-            });
+        cancelReasonSelect.addEventListener('change', function() {
+            if (this.value === 'Khác') {
+                otherReasonContainer.style.display = 'block';
+            } else {
+                otherReasonContainer.style.display = 'none';
+            }
         });
         
         // Add ripple effect to buttons
@@ -492,6 +602,17 @@
                 setTimeout(() => {
                     ripple.remove();
                 }, 600);
+            });
+        });
+        
+        // Row hover animation
+        const orderRows = document.querySelectorAll('.order-row');
+        orderRows.forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.classList.add('animate__pulse');
+            });
+            row.addEventListener('mouseleave', function() {
+                this.classList.remove('animate__pulse');
             });
         });
     });
