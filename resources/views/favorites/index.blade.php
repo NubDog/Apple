@@ -1,70 +1,56 @@
 @extends('layouts.main')
 
+@section('title', 'Sản phẩm yêu thích')
+
 @section('content')
 <div class="favorites-container py-5">
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="favorites-title animate__animated animate__fadeIn">
-                    <i class="fas fa-heart text-danger me-2"></i>Xe yêu thích của bạn
-                </h1>
-                
-                @if($favorites->isEmpty())
-                    <div class="empty-favorites animate__animated animate__fadeIn">
-                        <div class="empty-icon">
-                            <i class="far fa-heart"></i>
-                        </div>
-                        <h3>Danh sách xe yêu thích của bạn đang trống</h3>
-                        <p>Bạn chưa có xe nào trong danh sách yêu thích. Hãy khám phá các xe và thêm vào danh sách yêu thích của bạn.</p>
-                        <a href="{{ route('products.index') }}" class="btn btn-primary mt-3">
-                            <i class="fas fa-car me-2"></i>Khám phá các xe
-                        </a>
-                    </div>
-                @else
+        <h1 class="favorites-title">
+            <i class="fas fa-heart text-danger me-2"></i>Xe yêu thích của bạn
+        </h1>
+        
+        <div class="card">
+            <div class="card-body">
+                @if($favorites->count() > 0)
                     <div class="row">
                         @foreach($favorites as $favorite)
-                            <div class="col-md-6 col-lg-4 mb-4 product-card animate__animated animate__fadeInUp" style="animation-delay: {{ $loop->iteration * 0.1 }}s">
+                            <div class="col-md-3 mb-4 product-card">
                                 <div class="favorite-item">
-                                    <div class="position-relative">
-                                        <div class="favorite-date">
-                                            <i class="far fa-clock me-1"></i> 
-                                            {{ $favorite->created_at->diffForHumans() }}
-                                        </div>
-                                        
-                                        <button class="remove-favorite" data-product-id="{{ $favorite->product_id }}">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                        
-                                        <img src="{{ asset('storage/' . $favorite->product->image) }}" 
-                                            class="favorite-image" 
-                                            alt="{{ $favorite->product->name }}" 
-                                            onerror="this.src='/images/no-image.jpg'">
-                                            
-                                        @if($favorite->product->on_sale)
-                                            <div class="sale-badge">Giảm giá</div>
-                                        @endif
-                                        
-                                        @if($favorite->product->is_new)
-                                            <div class="new-badge">Mới</div>
-                                        @endif
+                                    <div class="favorite-image">
+                                        <a href="{{ route('products.show', $favorite->product->slug) }}">
+                                            @if($favorite->product->image)
+                                                <img src="{{ asset('storage/' . $favorite->product->image) }}" alt="{{ $favorite->product->name }}" class="img-fluid">
+                                            @else
+                                                <img src="{{ asset('images/no-image.jpg') }}" alt="No image" class="img-fluid">
+                                            @endif
+                                        </a>
+                                        <form action="{{ route('favorites.remove', $favorite->product->id) }}" method="POST" class="remove-favorite-form">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="remove-favorite" data-product-id="{{ $favorite->product->id }}">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                     
                                     <div class="favorite-details">
-                                        <h3 class="favorite-name">{{ $favorite->product->name }}</h3>
-                                        <p class="favorite-specs">{{ $favorite->product->details ?? '4.0 DS PowerPulse Momentum 5dr AWD Auto' }}</p>
+                                        <h5 class="favorite-title">
+                                            <a href="{{ route('products.show', $favorite->product->slug) }}">{{ $favorite->product->name }}</a>
+                                        </h5>
                                         
-                                        <div class="product-features">
-                                            <div class="feature">
-                                                <i class="fas fa-tachometer-alt"></i>
-                                                <span>{{ rand(20, 2500) }} Miles</span>
-                                            </div>
-                                            <div class="feature">
-                                                <i class="fas fa-gas-pump"></i>
-                                                <span>{{ ['Xăng', 'Dầu', 'Hybrid', 'Điện'][rand(0, 3)] }}</span>
-                                            </div>
-                                            <div class="feature">
-                                                <i class="fas fa-cog"></i>
-                                                <span>{{ ['Tự động', 'Số sàn'][rand(0, 1)] }}</span>
+                                        <div class="favorite-meta">
+                                            <div class="specs">
+                                                @if(isset($favorite->product->year))
+                                                    <span><i class="fas fa-calendar-alt"></i> {{ $favorite->product->year }}</span>
+                                                @endif
+                                                
+                                                @if(isset($favorite->product->transmission))
+                                                    <span><i class="fas fa-cogs"></i> {{ $favorite->product->transmission }}</span>
+                                                @endif
+                                                
+                                                @if(isset($favorite->product->fuel_type))
+                                                    <span><i class="fas fa-gas-pump"></i> {{ $favorite->product->fuel_type }}</span>
+                                                @endif
                                             </div>
                                         </div>
                                         
@@ -96,16 +82,24 @@
                             </div>
                         @endforeach
                     </div>
-
+                    
                     <div class="d-flex justify-content-center mt-4">
                         {{ $favorites->links() }}
+                    </div>
+                @else
+                    <div class="empty-favorites">
+                        <div class="empty-icon">
+                            <i class="far fa-heart"></i>
+                        </div>
+                        <h3>Bạn chưa có sản phẩm yêu thích nào</h3>
+                        <p>Hãy thêm các sản phẩm yêu thích để dễ dàng theo dõi và so sánh sau này.</p>
+                        <a href="{{ route('products.index') }}" class="btn btn-primary">Khám phá sản phẩm ngay</a>
                     </div>
                 @endif
             </div>
         </div>
     </div>
 </div>
-
 @endsection
 
 @push('styles')

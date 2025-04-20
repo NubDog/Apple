@@ -11,7 +11,7 @@ class Favorite extends Model
     use HasFactory;
 
     /**
-     * The attributes that are mass assignable.
+     * Các thuộc tính có thể gán giá trị hàng loạt.
      *
      * @var array<int, string>
      */
@@ -21,7 +21,7 @@ class Favorite extends Model
     ];
 
     /**
-     * Get the user that owns the favorite
+     * Lấy thông tin người dùng sở hữu mục yêu thích
      */
     public function user(): BelongsTo
     {
@@ -29,7 +29,7 @@ class Favorite extends Model
     }
 
     /**
-     * Get the product that owns the favorite
+     * Lấy thông tin sản phẩm được yêu thích
      */
     public function product(): BelongsTo
     {

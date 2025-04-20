@@ -743,6 +743,54 @@
     .toast-info .toast-icon {
         color: #2196f3;
     }
+
+    /* Style cho thông báo */
+    #notification-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+    
+    .notification {
+        display: flex;
+        align-items: center;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+        padding: 15px;
+        margin-bottom: 10px;
+        transform: translateX(120%);
+        opacity: 0;
+        transition: all 0.3s ease;
+        max-width: 300px;
+    }
+    
+    .notification.show {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    
+    .notification-icon {
+        margin-right: 12px;
+        font-size: 20px;
+    }
+    
+    .notification-success .notification-icon {
+        color: #4CAF50;
+    }
+    
+    .notification-error .notification-icon {
+        color: #F44336;
+    }
+    
+    .notification-info .notification-icon {
+        color: #2196F3;
+    }
+    
+    .notification-message {
+        font-size: 14px;
+    }
 </style>
 @endpush
 
@@ -872,129 +920,110 @@
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         
-        // Wishlist functionality
+        // Chức năng yêu thích
         const isLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
         const loginUrl = "{{ route('login') }}";
         const toggleUrl = "{{ route('favorites.toggle') }}";
         const checkUrl = "{{ route('favorites.check') }}";
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
         
-        // Initialize wishlist buttons
-        loadWishlistStatus();
+        // Kiểm tra trạng thái yêu thích khi tải trang
+        if (isLoggedIn) {
+            checkFavoriteStatus();
+        }
         
-        // Handle wishlist button clicks
-        $(document).on('click', '.wishlist-btn', function(e) {
+        // Xử lý khi click vào nút "Yêu thích"
+        $('.wishlist-btn').on('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             
-            if (isLoggedIn) {
-                var button = $(this);
-                var productId = button.data('product-id');
-                
-                // Disable button temporarily
-                button.css('pointer-events', 'none');
-                
-                // Send AJAX request using form data
-                $.ajax({
-                    url: toggleUrl,
-                    type: 'POST',
-                    data: {
-                        _token: csrfToken,
-                        product_id: productId
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        // Update button appearance
-                        if (response.status === 'added') {
-                            button.addClass('active');
-                            button.find('i').removeClass('far').addClass('fas');
-                            showToast('Đã thêm vào danh sách yêu thích', 'success');
-                        } else {
-                            button.removeClass('active');
-                            button.find('i').removeClass('fas').addClass('far');
-                            showToast('Đã xóa khỏi danh sách yêu thích', 'info');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Wishlist error:', error);
-                        showToast('Đã xảy ra lỗi khi cập nhật yêu thích', 'error');
-                    },
-                    complete: function() {
-                        // Re-enable button
-                        button.css('pointer-events', 'auto');
-                    }
-                });
-            } else {
+            if (!isLoggedIn) {
                 window.location.href = loginUrl;
+                return;
             }
+            
+            const button = $(this);
+            const productId = button.data('product-id');
+            
+            // Hiệu ứng khi click
+            button.prop('disabled', true);
+            
+            // Gửi request để toggle trạng thái yêu thích
+            $.ajax({
+                url: toggleUrl,
+                type: 'POST',
+                data: {
+                    _token: csrfToken,
+                    product_id: productId
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'added') {
+                        button.find('i').removeClass('far').addClass('fas');
+                        showNotification('Đã thêm vào danh sách yêu thích', 'success');
+                    } else {
+                        button.find('i').removeClass('fas').addClass('far');
+                        showNotification('Đã xóa khỏi danh sách yêu thích', 'info');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Lỗi khi cập nhật yêu thích:', error);
+                    showNotification('Đã xảy ra lỗi, vui lòng thử lại sau.', 'error');
+                },
+                complete: function() {
+                    button.prop('disabled', false);
+                }
+            });
         });
         
-        // Function to load wishlist status
-        function loadWishlistStatus() {
-            if (!isLoggedIn) return;
-            
-            // Extract product IDs from wishlist buttons
-            var productIds = [];
-            $('.wishlist-btn').each(function() {
-                productIds.push($(this).data('product-id'));
-            });
-            
-            if (productIds.length === 0) return;
-            
-            // Get wishlist status for all products
+        // Hàm kiểm tra xem sản phẩm đã được yêu thích chưa
+        function checkFavoriteStatus() {
             $.ajax({
                 url: checkUrl,
                 type: 'POST',
                 data: {
                     _token: csrfToken,
-                    product_id: productIds
+                    product_id: {{ $product->id }}
                 },
                 dataType: 'json',
                 success: function(response) {
-                    if (response.favorites && response.favorites.length > 0) {
-                        // Update buttons for favorited products
-                        $.each(response.favorites, function(index, productId) {
-                            $('.wishlist-btn[data-product-id="' + productId + '"]').each(function() {
-                                $(this).addClass('active');
-                                $(this).find('i').removeClass('far').addClass('fas');
-                            });
-                        });
+                    if (response.favorites.includes({{ $product->id }})) {
+                        $('.wishlist-btn').find('i').removeClass('far').addClass('fas');
                     }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error loading wishlist status:', error);
                 }
             });
         }
         
-        // Function to show toast notifications
-        function showToast(message, type = 'success') {
-            // Create toast container if it doesn't exist
-            if (!$('#toast-container').length) {
-                $('body').append('<div id="toast-container"></div>');
+        // Hiển thị thông báo
+        function showNotification(message, type = 'success') {
+            // Kiểm tra container thông báo
+            if (!$('#notification-container').length) {
+                $('body').append('<div id="notification-container"></div>');
             }
             
-            // Create toast element
-            var toast = $('<div class="toast-notification toast-' + type + '">' +
-                '<div class="toast-icon"><i class="fas fa-' + 
-                (type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle') + 
-                '"></i></div>' +
-                '<div class="toast-message">' + message + '</div>' +
-                '</div>');
+            // Tạo thông báo
+            const notification = $(`
+                <div class="notification notification-${type}">
+                    <div class="notification-icon">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    </div>
+                    <div class="notification-message">${message}</div>
+                </div>
+            `);
             
-            // Add to container
-            $('#toast-container').append(toast);
+            // Thêm vào container
+            $('#notification-container').append(notification);
             
-            // Trigger animation
+            // Hiệu ứng hiển thị
             setTimeout(function() {
-                toast.addClass('show');
+                notification.addClass('show');
             }, 10);
             
-            // Remove after delay
+            // Tự động đóng sau 3 giây
             setTimeout(function() {
-                toast.removeClass('show');
+                notification.removeClass('show');
                 setTimeout(function() {
-                    toast.remove();
+                    notification.remove();
                 }, 300);
             }, 3000);
         }

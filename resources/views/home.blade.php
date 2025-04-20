@@ -401,40 +401,39 @@
         
         .wishlist-btn {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 10px;
+            right: 10px;
             width: 35px;
             height: 35px;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.8);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            z-index: 2;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            z-index: 5;
+            border: none;
         }
         
         .wishlist-btn:hover {
-            transform: scale(1.1);
             background-color: #fff;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .wishlist-btn i {
+            color: #dc3545;
             font-size: 18px;
-            color: #777;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
         }
         
         .wishlist-btn:hover i {
-            color: #ff5757;
+            transform: scale(1.1);
         }
         
         .wishlist-btn.active i {
-            color: #ff5757;
-            font-weight: 900;
+            color: #dc3545;
         }
         
         .product-title {
@@ -508,42 +507,30 @@
         
         .toast-notification {
             position: fixed;
-            top: 20px;
+            bottom: 20px;
             right: 20px;
-            min-width: 300px;
-            background-color: white;
-            color: #333;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
             display: flex;
             align-items: center;
-            z-index: 9999;
-            transform: translateY(-20px);
+            background: white;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-top: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            transform: translateX(100%);
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
+            max-width: 300px;
         }
         
         .toast-notification.show {
-            transform: translateY(0);
+            transform: translateX(0);
             opacity: 1;
         }
         
-        .toast-success {
-            border-left: 4px solid #4caf50;
-        }
-        
-        .toast-error {
-            border-left: 4px solid #f44336;
-        }
-        
-        .toast-info {
-            border-left: 4px solid #2196f3;
-        }
-        
         .toast-icon {
-            margin-right: 15px;
-            font-size: 22px;
+            margin-right: 10px;
+            font-size: 20px;
         }
         
         .toast-success .toast-icon {
@@ -560,7 +547,6 @@
         
         .toast-message {
             font-size: 14px;
-            font-weight: 500;
         }
     </style>
 </head>
@@ -969,7 +955,7 @@
     </footer>
 
     <!-- Toast Notification Container -->
-    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+    <div id="toast-container"></div>
 
     <!-- Messenger Chat Plugin -->
     <div id="fb-root"></div>
@@ -982,11 +968,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Wishlist functionality -->
-    <div id="auth-data" data-logged-in="{{ auth()->check() ? 'true' : 'false' }}" style="display: none;"></div>
     <script>
         $(document).ready(function() {
             // Set up variables from PHP
-            const isLoggedIn = $("#auth-data").data("logged-in") === "true";
+            const isLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
             const loginUrl = "{{ route('login') }}";
             const toggleUrl = "{{ route('favorites.toggle') }}";
             const checkUrl = "{{ route('favorites.check') }}";
@@ -1000,46 +985,52 @@
                 e.preventDefault();
                 e.stopPropagation();
                 
-                if (isLoggedIn) {
-                    var button = $(this);
-                    var productId = button.data('product-id');
-                    
-                    // Disable button temporarily
-                    button.css('pointer-events', 'none');
-                    
-                    // Send AJAX request using form data
-                    $.ajax({
-                        url: toggleUrl,
-                        type: 'POST',
-                        data: {
-                            _token: csrfToken,
-                            product_id: productId
-                        },
-                        dataType: 'json',
-                        success: function(response) {
-                            // Update button appearance
-                            if (response.status === 'added') {
-                                button.addClass('active');
-                                button.find('i').removeClass('far').addClass('fas');
-                                showToast('Đã thêm vào danh sách yêu thích', 'success');
-                            } else {
-                                button.removeClass('active');
-                                button.find('i').removeClass('fas').addClass('far');
-                                showToast('Đã xóa khỏi danh sách yêu thích', 'info');
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Wishlist error:', error);
-                            showToast('Đã xảy ra lỗi khi cập nhật yêu thích', 'error');
-                        },
-                        complete: function() {
-                            // Re-enable button
-                            button.css('pointer-events', 'auto');
-                        }
-                    });
-                } else {
+                const button = $(this);
+                const productId = button.data('product-id');
+                
+                if (!isLoggedIn) {
                     window.location.href = loginUrl;
+                    return;
                 }
+                
+                // Disable button temporarily and add loading effect
+                button.css('pointer-events', 'none');
+                button.find('i').removeClass('far fas').addClass('fa-spinner fa-spin');
+                
+                // Send AJAX request using form data
+                $.ajax({
+                    url: toggleUrl,
+                    type: 'POST',
+                    data: {
+                        _token: csrfToken,
+                        product_id: productId
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        console.log('Wishlist response:', response);
+                        
+                        // Update button appearance
+                        if (response.status === 'added') {
+                            button.addClass('active');
+                            button.find('i').removeClass('fa-spinner fa-spin').addClass('fas fa-heart');
+                            showToast('Đã thêm vào danh sách yêu thích', 'success');
+                        } else {
+                            button.removeClass('active');
+                            button.find('i').removeClass('fa-spinner fa-spin').addClass('far fa-heart');
+                            showToast('Đã xóa khỏi danh sách yêu thích', 'info');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Wishlist error:', error);
+                        console.error('Response:', xhr.responseText);
+                        button.find('i').removeClass('fa-spinner fa-spin').addClass('far fa-heart');
+                        showToast('Đã xảy ra lỗi khi cập nhật yêu thích', 'error');
+                    },
+                    complete: function() {
+                        // Re-enable button
+                        button.css('pointer-events', 'auto');
+                    }
+                });
             });
             
             // Function to load wishlist status
@@ -1054,6 +1045,8 @@
                 
                 if (productIds.length === 0) return;
                 
+                console.log('Checking wishlist status for products:', productIds);
+                
                 // Get wishlist status for all products
                 $.ajax({
                     url: checkUrl,
@@ -1064,6 +1057,8 @@
                     },
                     dataType: 'json',
                     success: function(response) {
+                        console.log('Wishlist status response:', response);
+                        
                         if (response.favorites && response.favorites.length > 0) {
                             // Update buttons for favorited products
                             $.each(response.favorites, function(index, productId) {
@@ -1076,12 +1071,18 @@
                     },
                     error: function(xhr, status, error) {
                         console.error('Error loading wishlist status:', error);
+                        console.error('Response:', xhr.responseText);
                     }
                 });
             }
             
             // Function to show toast notifications
             function showToast(message, type = 'success') {
+                // Create toast container if it doesn't exist
+                if (!$('#toast-container').length) {
+                    $('body').append('<div id="toast-container"></div>');
+                }
+                
                 // Create toast element
                 var toast = $('<div class="toast-notification toast-' + type + '">' +
                     '<div class="toast-icon"><i class="fas fa-' + 
