@@ -100,7 +100,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Admin Order management
     Route::resource('orders', AdminOrderController::class, ['as' => 'admin']);
     Route::get('/orders/status/{status}', [AdminOrderController::class, 'ordersByStatus'])->name('admin.orders.status');
-    Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+    Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.update-status');
     
     // Admin Slider management
     Route::resource('sliders', AdminSliderController::class, ['as' => 'admin']);

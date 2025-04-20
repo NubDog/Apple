@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="profile-image">
-                        <img src="{{ $user->profile_photo_url ?? asset('images/default-avatar.jpg') }}" alt="{{ $user->name }}">
+                        <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('images/default-avatar.jpg') }}" alt="{{ $user->name }}">
                     </div>
                 </div>
                 

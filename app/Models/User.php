@@ -138,4 +138,16 @@ class User extends Authenticatable
     {
         return in_array($productId, $this->getFavoriteIds());
     }
+
+    /**
+     * Get the URL for the user's profile photo.
+     *
+     * @return string
+     */
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        return $this->profile_image
+            ? asset('storage/' . $this->profile_image)
+            : asset('images/default-avatar.jpg');
+    }
 }

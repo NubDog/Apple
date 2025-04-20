@@ -33,8 +33,8 @@
                     <button class="btn btn-sm btn-outline-primary me-2">
                         <i class="fas fa-share-alt"></i> Chia sẻ
                     </button>
-                    <button class="btn btn-sm btn-outline-danger">
-                        <i class="fas fa-heart"></i> Yêu thích
+                    <button class="btn btn-sm btn-outline-danger wishlist-btn" data-product-id="{{ $product->id }}">
+                        <i class="far fa-heart"></i> Yêu thích
                     </button>
                 </div>
             </div>
@@ -531,7 +531,7 @@
                             <img src="{{ asset('images/no-image.jpg') }}" class="card-img-top product-image" alt="No image available">
                             @endif
                         </a>
-                        <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2 rounded-circle">
+                        <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2 rounded-circle wishlist-btn" data-product-id="{{ $relatedProduct->id }}">
                             <i class="far fa-heart"></i>
                         </button>
                     </div>
@@ -669,6 +669,80 @@
         height: 100%;
         width: 100%;
     }
+    
+    .wishlist-btn {
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        border-color: #dc3545;
+    }
+
+    .wishlist-btn:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .wishlist-btn i {
+        transition: all 0.3s;
+    }
+
+    .wishlist-btn:hover i {
+        color: white;
+    }
+
+    .wishlist-btn.active i {
+        color: #dc3545;
+    }
+    
+    .wishlist-btn.active {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+    
+    /* Toast notifications */
+    #toast-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+
+    .toast-notification {
+        display: flex;
+        align-items: center;
+        background: white;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin-top: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        transform: translateX(100%);
+        opacity: 0;
+        transition: all 0.3s;
+        max-width: 300px;
+    }
+
+    .toast-notification.show {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    .toast-icon {
+        margin-right: 10px;
+        font-size: 20px;
+    }
+
+    .toast-success .toast-icon {
+        color: #4caf50;
+    }
+
+    .toast-error .toast-icon {
+        color: #f44336;
+    }
+
+    .toast-info .toast-icon {
+        color: #2196f3;
+    }
 </style>
 @endpush
 
@@ -796,6 +870,133 @@
         
         function numberWithCommas(x) {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Wishlist functionality
+        const isLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
+        const loginUrl = "{{ route('login') }}";
+        const toggleUrl = "{{ route('favorites.toggle') }}";
+        const checkUrl = "{{ route('favorites.check') }}";
+        const csrfToken = $('meta[name="csrf-token"]').attr('content');
+        
+        // Initialize wishlist buttons
+        loadWishlistStatus();
+        
+        // Handle wishlist button clicks
+        $(document).on('click', '.wishlist-btn', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (isLoggedIn) {
+                var button = $(this);
+                var productId = button.data('product-id');
+                
+                // Disable button temporarily
+                button.css('pointer-events', 'none');
+                
+                // Send AJAX request using form data
+                $.ajax({
+                    url: toggleUrl,
+                    type: 'POST',
+                    data: {
+                        _token: csrfToken,
+                        product_id: productId
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        // Update button appearance
+                        if (response.status === 'added') {
+                            button.addClass('active');
+                            button.find('i').removeClass('far').addClass('fas');
+                            showToast('Đã thêm vào danh sách yêu thích', 'success');
+                        } else {
+                            button.removeClass('active');
+                            button.find('i').removeClass('fas').addClass('far');
+                            showToast('Đã xóa khỏi danh sách yêu thích', 'info');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Wishlist error:', error);
+                        showToast('Đã xảy ra lỗi khi cập nhật yêu thích', 'error');
+                    },
+                    complete: function() {
+                        // Re-enable button
+                        button.css('pointer-events', 'auto');
+                    }
+                });
+            } else {
+                window.location.href = loginUrl;
+            }
+        });
+        
+        // Function to load wishlist status
+        function loadWishlistStatus() {
+            if (!isLoggedIn) return;
+            
+            // Extract product IDs from wishlist buttons
+            var productIds = [];
+            $('.wishlist-btn').each(function() {
+                productIds.push($(this).data('product-id'));
+            });
+            
+            if (productIds.length === 0) return;
+            
+            // Get wishlist status for all products
+            $.ajax({
+                url: checkUrl,
+                type: 'POST',
+                data: {
+                    _token: csrfToken,
+                    product_id: productIds
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.favorites && response.favorites.length > 0) {
+                        // Update buttons for favorited products
+                        $.each(response.favorites, function(index, productId) {
+                            $('.wishlist-btn[data-product-id="' + productId + '"]').each(function() {
+                                $(this).addClass('active');
+                                $(this).find('i').removeClass('far').addClass('fas');
+                            });
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading wishlist status:', error);
+                }
+            });
+        }
+        
+        // Function to show toast notifications
+        function showToast(message, type = 'success') {
+            // Create toast container if it doesn't exist
+            if (!$('#toast-container').length) {
+                $('body').append('<div id="toast-container"></div>');
+            }
+            
+            // Create toast element
+            var toast = $('<div class="toast-notification toast-' + type + '">' +
+                '<div class="toast-icon"><i class="fas fa-' + 
+                (type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle') + 
+                '"></i></div>' +
+                '<div class="toast-message">' + message + '</div>' +
+                '</div>');
+            
+            // Add to container
+            $('#toast-container').append(toast);
+            
+            // Trigger animation
+            setTimeout(function() {
+                toast.addClass('show');
+            }, 10);
+            
+            // Remove after delay
+            setTimeout(function() {
+                toast.removeClass('show');
+                setTimeout(function() {
+                    toast.remove();
+                }, 300);
+            }, 3000);
         }
     });
 </script>

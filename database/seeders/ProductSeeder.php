@@ -2,315 +2,362 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category;
-use App\Models\Product;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Product;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        $categories = Category::all();
+        $now = Carbon::now();
         
-        // Products for Sedan category
-        $sedanCategory = $categories->where('name', 'Sedan')->first();
-        if ($sedanCategory) {
-            $this->createSedanProducts($sedanCategory->id);
-        }
-        
-        // Products for SUV category
-        $suvCategory = $categories->where('name', 'SUV')->first();
-        if ($suvCategory) {
-            $this->createSUVProducts($suvCategory->id);
-        }
-        
-        // Products for Hatchback category
-        $hatchbackCategory = $categories->where('name', 'Hatchback')->first();
-        if ($hatchbackCategory) {
-            $this->createHatchbackProducts($hatchbackCategory->id);
-        }
-        
-        // Products for Luxury category
-        $luxuryCategory = $categories->where('name', 'Luxury')->first();
-        if ($luxuryCategory) {
-            $this->createLuxuryProducts($luxuryCategory->id);
-        }
-        
-        // Products for Sports Car category
-        $sportsCategory = $categories->where('name', 'Sports Car')->first();
-        if ($sportsCategory) {
-            $this->createSportsProducts($sportsCategory->id);
-        }
-        
-        // Products for Electric category
-        $electricCategory = $categories->where('name', 'Electric')->first();
-        if ($electricCategory) {
-            $this->createElectricProducts($electricCategory->id);
-        }
-    }
-    
-    private function createSedanProducts($categoryId)
-    {
         $products = [
             [
-                'name' => 'Toyota Camry',
-                'description' => 'The reliable and comfortable Toyota Camry sedan',
-                'details' => 'Engine: 2.5L 4-cylinder, Transmission: 8-speed automatic, MPG: 29 city / 41 highway',
-                'price' => 28000,
-                'sale_price' => 26500,
-                'quantity' => 15,
-                'image' => 'products/camry.jpg',
+                'category_id' => 1, // Assuming category_id 1 is for cars
+                'name' => 'Ferrari SF90 Stradale 2024',
+                'slug' => 'ferrari-sf90-stradale-2024',
+                'description' => 'Siêu xe hybrid mạnh mẽ nhất của Ferrari với công suất 986 mã lực',
+                'details' => 'Động cơ V8 4.0L twin-turbo kết hợp 3 motor điện, 0-100km/h trong 2.5 giây, tốc độ tối đa 340km/h',
+                'price' => 625000.00,
+                'sale_price' => null,
+                'quantity' => 5,
+                'image' => 'products/ferrari-sf90.jpg',
+                'images' => json_encode(['products/ferrari-sf90-1.jpg', 'products/ferrari-sf90-2.jpg']),
                 'featured' => true,
                 'is_new' => true,
-                'on_sale' => true
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
             ],
             [
-                'name' => 'Honda Accord',
-                'description' => 'The stylish and efficient Honda Accord sedan',
-                'details' => 'Engine: 1.5L Turbo 4-cylinder, Transmission: CVT, MPG: 30 city / 38 highway',
-                'price' => 27500,
+                'category_id' => 1,
+                'name' => 'Lamborghini Revuelto 2024',
+                'slug' => 'lamborghini-revuelto-2024',
+                'description' => 'Siêu xe hybrid đầu tiên của Lamborghini thay thế Aventador',
+                'details' => 'Động cơ V12 6.5L kết hợp 3 motor điện, công suất 1001 mã lực, 0-100km/h trong 2.8 giây',
+                'price' => 698000.00,
                 'sale_price' => null,
-                'quantity' => 12,
-                'image' => 'products/accord.jpg',
+                'quantity' => 3,
+                'image' => 'products/lambo-revuelto.jpg',
+                'images' => json_encode(['products/lambo-revuelto-1.jpg', 'products/lambo-revuelto-2.jpg']),
                 'featured' => true,
-                'is_new' => false,
-                'on_sale' => false
+                'is_new' => true,
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
             ],
             [
-                'name' => 'Nissan Altima',
-                'description' => 'The comfortable and affordable Nissan Altima sedan',
-                'details' => 'Engine: 2.5L 4-cylinder, Transmission: CVT, MPG: 28 city / 39 highway',
-                'price' => 25500,
-                'sale_price' => 24000,
+                'category_id' => 1,
+                'name' => 'Porsche 911 GT3 RS 2024',
+                'slug' => 'porsche-911-gt3-rs-2024',
+                'description' => 'Phiên bản hiệu suất cao nhất của dòng 911',
+                'details' => 'Động cơ boxer 6 xy-lanh 4.0L, công suất 518 mã lực, hệ thống khí động học tiên tiến',
+                'price' => 223000.00,
+                'sale_price' => 215000.00,
                 'quantity' => 8,
-                'image' => 'products/altima.jpg',
-                'featured' => false,
-                'is_new' => false,
-                'on_sale' => true
-            ]
-        ];
-        
-        $this->createProducts($products, $categoryId);
-    }
-    
-    private function createSUVProducts($categoryId)
-    {
-        $products = [
-            [
-                'name' => 'Toyota RAV4',
-                'description' => 'The versatile and capable Toyota RAV4 SUV',
-                'details' => 'Engine: 2.5L 4-cylinder, Transmission: 8-speed automatic, MPG: 27 city / 35 highway',
-                'price' => 31000,
-                'sale_price' => 29500,
-                'quantity' => 10,
-                'image' => 'products/rav4.jpg',
+                'image' => 'products/porsche-gt3rs.jpg',
+                'images' => json_encode(['products/porsche-gt3rs-1.jpg', 'products/porsche-gt3rs-2.jpg']),
                 'featured' => true,
                 'is_new' => true,
-                'on_sale' => true
+                'on_sale' => true,
+                'created_at' => $now,
+                'updated_at' => $now
             ],
             [
-                'name' => 'Honda CR-V',
-                'description' => 'The spacious and reliable Honda CR-V SUV',
-                'details' => 'Engine: 1.5L Turbo 4-cylinder, Transmission: CVT, MPG: 28 city / 34 highway',
-                'price' => 32000,
+                'category_id' => 1,
+                'name' => 'McLaren 750S 2024',
+                'slug' => 'mclaren-750s-2024',
+                'description' => 'Siêu xe thế hệ mới của McLaren thay thế 720S',
+                'details' => 'Động cơ V8 twin-turbo 4.0L, công suất 750 mã lực, trọng lượng chỉ 1389kg',
+                'price' => 450000.00,
                 'sale_price' => null,
-                'quantity' => 9,
-                'image' => 'products/crv.jpg',
-                'featured' => true,
-                'is_new' => false,
-                'on_sale' => false
-            ],
-            [
-                'name' => 'Ford Explorer',
-                'description' => 'The powerful and spacious Ford Explorer SUV',
-                'details' => 'Engine: 2.3L EcoBoost, Transmission: 10-speed automatic, MPG: 21 city / 28 highway',
-                'price' => 38000,
-                'sale_price' => 36000,
                 'quantity' => 6,
-                'image' => 'products/explorer.jpg',
-                'featured' => false,
+                'image' => 'products/mclaren-750s.jpg',
+                'images' => json_encode(['products/mclaren-750s-1.jpg', 'products/mclaren-750s-2.jpg']),
+                'featured' => true,
                 'is_new' => true,
-                'on_sale' => true
-            ]
-        ];
-        
-        $this->createProducts($products, $categoryId);
-    }
-    
-    private function createHatchbackProducts($categoryId)
-    {
-        $products = [
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
             [
-                'name' => 'Honda Civic Hatchback',
-                'description' => 'The sporty and practical Honda Civic Hatchback',
-                'details' => 'Engine: 1.5L Turbo 4-cylinder, Transmission: CVT, MPG: 31 city / 40 highway',
-                'price' => 25500,
+                'category_id' => 1,
+                'name' => 'Bugatti Chiron Super Sport 300+ 2024',
+                'slug' => 'bugatti-chiron-super-sport-300-2024',
+                'description' => 'Siêu xe nhanh nhất thế giới của Bugatti',
+                'details' => 'Động cơ W16 8.0L quad-turbo, công suất 1578 mã lực, tốc độ tối đa 490.48 km/h',
+                'price' => 4300000.00,
                 'sale_price' => null,
-                'quantity' => 14,
-                'image' => 'products/civic-hatch.jpg',
+                'quantity' => 2,
+                'image' => 'products/bugatti-chiron-ss.jpg',
+                'images' => json_encode(['products/bugatti-chiron-ss-1.jpg', 'products/bugatti-chiron-ss-2.jpg']),
                 'featured' => true,
                 'is_new' => true,
-                'on_sale' => false
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
             ],
             [
-                'name' => 'Mazda 3 Hatchback',
-                'description' => 'The elegant and fun-to-drive Mazda 3 Hatchback',
-                'details' => 'Engine: 2.5L 4-cylinder, Transmission: 6-speed automatic, MPG: 26 city / 35 highway',
-                'price' => 27000,
-                'sale_price' => 25500,
-                'quantity' => 7,
-                'image' => 'products/mazda3-hatch.jpg',
-                'featured' => false,
-                'is_new' => false,
-                'on_sale' => true
-            ]
-        ];
-        
-        $this->createProducts($products, $categoryId);
-    }
-    
-    private function createLuxuryProducts($categoryId)
-    {
-        $products = [
-            [
-                'name' => 'Mercedes-Benz S-Class',
-                'description' => 'The pinnacle of luxury and technology',
-                'details' => 'Engine: 3.0L Inline-6 Turbo, Transmission: 9-speed automatic, MPG: 22 city / 29 highway',
-                'price' => 110000,
-                'sale_price' => null,
-                'quantity' => 5,
-                'image' => 'products/s-class.jpg',
-                'featured' => true,
-                'is_new' => true,
-                'on_sale' => false
-            ],
-            [
-                'name' => 'BMW 7 Series',
-                'description' => 'The ultimate driving luxury sedan',
-                'details' => 'Engine: 3.0L Twin-Turbo 6-cylinder, Transmission: 8-speed automatic, MPG: 22 city / 29 highway',
-                'price' => 95000,
-                'sale_price' => 92000,
-                'quantity' => 4,
-                'image' => 'products/7-series.jpg',
-                'featured' => true,
-                'is_new' => false,
-                'on_sale' => true
-            ],
-            [
-                'name' => 'Audi A8',
-                'description' => 'The sophisticated and tech-forward luxury sedan',
-                'details' => 'Engine: 3.0L V6 Turbo, Transmission: 8-speed automatic, MPG: 21 city / 29 highway',
-                'price' => 88000,
+                'category_id' => 1,
+                'name' => 'Aston Martin Valkyrie 2024',
+                'slug' => 'aston-martin-valkyrie-2024',
+                'description' => 'Siêu xe đường phố với công nghệ F1',
+                'details' => 'Động cơ V12 6.5L tự nhiên kết hợp motor điện, công suất 1160 mã lực, trọng lượng chỉ 1030kg',
+                'price' => 3200000.00,
                 'sale_price' => null,
                 'quantity' => 3,
-                'image' => 'products/a8.jpg',
-                'featured' => false,
-                'is_new' => true,
-                'on_sale' => false
-            ]
-        ];
-        
-        $this->createProducts($products, $categoryId);
-    }
-    
-    private function createSportsProducts($categoryId)
-    {
-        $products = [
-            [
-                'name' => 'Porsche 911',
-                'description' => 'The iconic and exhilarating Porsche 911 sports car',
-                'details' => 'Engine: 3.0L Twin-Turbo 6-cylinder, Transmission: 8-speed PDK, 0-60 mph: 3.5 seconds',
-                'price' => 115000,
-                'sale_price' => null,
-                'quantity' => 3,
-                'image' => 'products/911.jpg',
+                'image' => 'products/aston-valkyrie.jpg',
+                'images' => json_encode(['products/aston-valkyrie-1.jpg', 'products/aston-valkyrie-2.jpg']),
                 'featured' => true,
                 'is_new' => true,
-                'on_sale' => false
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
             ],
             [
-                'name' => 'Chevrolet Corvette',
-                'description' => 'The powerful American sports car',
-                'details' => 'Engine: 6.2L V8, Transmission: 8-speed dual-clutch, 0-60 mph: 2.9 seconds',
-                'price' => 65000,
-                'sale_price' => 62000,
-                'quantity' => 5,
-                'image' => 'products/corvette.jpg',
-                'featured' => true,
-                'is_new' => true,
-                'on_sale' => true
-            ]
-        ];
-        
-        $this->createProducts($products, $categoryId);
-    }
-    
-    private function createElectricProducts($categoryId)
-    {
-        $products = [
-            [
-                'name' => 'Tesla Model 3',
-                'description' => 'The popular and efficient Tesla Model 3 electric sedan',
-                'details' => 'Range: 358 miles, 0-60 mph: 3.1 seconds, Dual Motor All-Wheel Drive',
-                'price' => 48000,
-                'sale_price' => null,
+                'category_id' => 1,
+                'name' => 'Mercedes-AMG GT 63 S E Performance 2024',
+                'slug' => 'mercedes-amg-gt-63-s-e-performance-2024',
+                'description' => 'Sedan hiệu suất cao plug-in hybrid mạnh nhất của Mercedes',
+                'details' => 'Động cơ V8 4.0L twin-turbo kết hợp motor điện, công suất 843 mã lực, mô-men xoắn 1400 Nm',
+                'price' => 198000.00,
+                'sale_price' => 189000.00,
                 'quantity' => 10,
-                'image' => 'products/model3.jpg',
+                'image' => 'products/mercedes-gt63s.jpg',
+                'images' => json_encode(['products/mercedes-gt63s-1.jpg', 'products/mercedes-gt63s-2.jpg']),
                 'featured' => true,
                 'is_new' => true,
-                'on_sale' => false
+                'on_sale' => true,
+                'created_at' => $now,
+                'updated_at' => $now
             ],
             [
-                'name' => 'Nissan Leaf',
-                'description' => 'The affordable and practical Nissan Leaf electric hatchback',
-                'details' => 'Range: 226 miles, Motor: 147 hp electric, Battery: 62 kWh',
-                'price' => 32000,
-                'sale_price' => 30000,
+                'category_id' => 1,
+                'name' => 'BMW M5 CS 2024',
+                'slug' => 'bmw-m5-cs-2024',
+                'description' => 'Sedan hiệu suất cao đầu bảng của BMW',
+                'details' => 'Động cơ V8 4.4L twin-turbo, công suất 627 mã lực, 0-100km/h trong 3.0 giây',
+                'price' => 142000.00,
+                'sale_price' => 135000.00,
                 'quantity' => 12,
-                'image' => 'products/leaf.jpg',
+                'image' => 'products/bmw-m5cs.jpg',
+                'images' => json_encode(['products/bmw-m5cs-1.jpg', 'products/bmw-m5cs-2.jpg']),
                 'featured' => false,
-                'is_new' => false,
-                'on_sale' => true
+                'is_new' => true,
+                'on_sale' => true,
+                'created_at' => $now,
+                'updated_at' => $now
             ],
             [
-                'name' => 'Ford Mustang Mach-E',
-                'description' => 'The exciting and capable Ford Mustang Mach-E electric SUV',
-                'details' => 'Range: 314 miles, 0-60 mph: 3.5 seconds, Dual Motor All-Wheel Drive',
-                'price' => 52000,
+                'category_id' => 1,
+                'name' => 'Porsche Taycan Turbo S 2024',
+                'slug' => 'porsche-taycan-turbo-s-2024',
+                'description' => 'Sedan thể thao thuần điện hiệu suất cao',
+                'details' => 'Hai motor điện, công suất 750 mã lực, 0-100km/h trong 2.8 giây, phạm vi hoạt động 405km',
+                'price' => 185000.00,
                 'sale_price' => null,
-                'quantity' => 7,
-                'image' => 'products/mach-e.jpg',
+                'quantity' => 15,
+                'image' => 'products/porsche-taycan.jpg',
+                'images' => json_encode(['products/porsche-taycan-1.jpg', 'products/porsche-taycan-2.jpg']),
                 'featured' => true,
                 'is_new' => true,
-                'on_sale' => false
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'category_id' => 1,
+                'name' => 'Rolls-Royce Spectre 2024',
+                'slug' => 'rolls-royce-spectre-2024',
+                'description' => 'Xe điện siêu sang đầu tiên của Rolls-Royce',
+                'details' => 'Hai motor điện, công suất 577 mã lực, nội thất sang trọng bậc nhất thế giới',
+                'price' => 420000.00,
+                'sale_price' => null,
+                'quantity' => 8,
+                'image' => 'products/rolls-spectre.jpg',
+                'images' => json_encode(['products/rolls-spectre-1.jpg', 'products/rolls-spectre-2.jpg']),
+                'featured' => true,
+                'is_new' => true,
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'category_id' => 1,
+                'name' => 'Koenigsegg Jesko Absolut 2024',
+                'slug' => 'koenigsegg-jesko-absolut-2024',
+                'description' => 'Siêu xe thương mại nhanh nhất thế giới',
+                'details' => 'Động cơ V8 5.0L twin-turbo, công suất 1600 mã lực, tốc độ tối đa lý thuyết 531km/h',
+                'price' => 3800000.00,
+                'sale_price' => null,
+                'quantity' => 2,
+                'image' => 'products/koenigsegg-jesko.jpg',
+                'images' => json_encode(['products/koenigsegg-jesko-1.jpg', 'products/koenigsegg-jesko-2.jpg']),
+                'featured' => true,
+                'is_new' => true,
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'category_id' => 1,
+                'name' => 'Pagani Utopia 2024',
+                'slug' => 'pagani-utopia-2024',
+                'description' => 'Siêu xe thủ công của Pagani với số lượng giới hạn',
+                'details' => 'Động cơ V12 6.0L twin-turbo, công suất 852 mã lực, hộp số sàn 7 cấp',
+                'price' => 2200000.00,
+                'sale_price' => null,
+                'quantity' => 3,
+                'image' => 'products/pagani-utopia.jpg',
+                'images' => json_encode(['products/pagani-utopia-1.jpg', 'products/pagani-utopia-2.jpg']),
+                'featured' => true,
+                'is_new' => true,
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'category_id' => 1,
+                'name' => 'Rimac Nevera 2024',
+                'slug' => 'rimac-nevera-2024',
+                'description' => 'Siêu xe điện nhanh nhất thế giới',
+                'details' => 'Bốn motor điện, công suất 1914 mã lực, 0-100km/h trong 1.85 giây',
+                'price' => 2400000.00,
+                'sale_price' => null,
+                'quantity' => 4,
+                'image' => 'products/rimac-nevera.jpg',
+                'images' => json_encode(['products/rimac-nevera-1.jpg', 'products/rimac-nevera-2.jpg']),
+                'featured' => true,
+                'is_new' => true,
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'category_id' => 1,
+                'name' => 'Bentley Batur 2024',
+                'slug' => 'bentley-batur-2024',
+                'description' => 'Xe sang độc bản của Bentley',
+                'details' => 'Động cơ W12 6.0L twin-turbo, công suất 740 mã lực, sản xuất giới hạn 18 chiếc',
+                'price' => 1800000.00,
+                'sale_price' => null,
+                'quantity' => 2,
+                'image' => 'products/bentley-batur.jpg',
+                'images' => json_encode(['products/bentley-batur-1.jpg', 'products/bentley-batur-2.jpg']),
+                'featured' => true,
+                'is_new' => true,
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'category_id' => 1,
+                'name' => 'Audi RS e-tron GT 2024',
+                'slug' => 'audi-rs-etron-gt-2024',
+                'description' => 'Sedan thể thao điện cao cấp của Audi',
+                'details' => 'Hai motor điện, công suất 637 mã lực, 0-100km/h trong 3.3 giây',
+                'price' => 145000.00,
+                'sale_price' => 139000.00,
+                'quantity' => 10,
+                'image' => 'products/audi-rs-etron.jpg',
+                'images' => json_encode(['products/audi-rs-etron-1.jpg', 'products/audi-rs-etron-2.jpg']),
+                'featured' => false,
+                'is_new' => true,
+                'on_sale' => true,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'category_id' => 1,
+                'name' => 'Lucid Air Sapphire 2024',
+                'slug' => 'lucid-air-sapphire-2024',
+                'description' => 'Sedan điện hiệu suất cao của Lucid',
+                'details' => 'Ba motor điện, công suất 1200 mã lực, phạm vi hoạt động 640km',
+                'price' => 249000.00,
+                'sale_price' => null,
+                'quantity' => 8,
+                'image' => 'products/lucid-sapphire.jpg',
+                'images' => json_encode(['products/lucid-sapphire-1.jpg', 'products/lucid-sapphire-2.jpg']),
+                'featured' => true,
+                'is_new' => true,
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'category_id' => 1,
+                'name' => 'Maserati MC20 Cielo 2024',
+                'slug' => 'maserati-mc20-cielo-2024',
+                'description' => 'Siêu xe mui trần của Maserati',
+                'details' => 'Động cơ V6 3.0L twin-turbo, công suất 621 mã lực, mui cứng có thể gập',
+                'price' => 260000.00,
+                'sale_price' => 250000.00,
+                'quantity' => 7,
+                'image' => 'products/maserati-mc20.jpg',
+                'images' => json_encode(['products/maserati-mc20-1.jpg', 'products/maserati-mc20-2.jpg']),
+                'featured' => true,
+                'is_new' => true,
+                'on_sale' => true,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'category_id' => 1,
+                'name' => 'Lotus Evija 2024',
+                'slug' => 'lotus-evija-2024',
+                'description' => 'Siêu xe điện đầu tiên của Lotus',
+                'details' => 'Bốn motor điện, công suất 2000 mã lực, phạm vi hoạt động 400km',
+                'price' => 2100000.00,
+                'sale_price' => null,
+                'quantity' => 3,
+                'image' => 'products/lotus-evija.jpg',
+                'images' => json_encode(['products/lotus-evija-1.jpg', 'products/lotus-evija-2.jpg']),
+                'featured' => true,
+                'is_new' => true,
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'category_id' => 1,
+                'name' => 'Gordon Murray T.50 2024',
+                'slug' => 'gordon-murray-t50-2024',
+                'description' => 'Siêu xe với quạt khí động học độc đáo',
+                'details' => 'Động cơ V12 4.0L tự nhiên, công suất 654 mã lực, trọng lượng chỉ 986kg',
+                'price' => 3100000.00,
+                'sale_price' => null,
+                'quantity' => 2,
+                'image' => 'products/gordon-t50.jpg',
+                'images' => json_encode(['products/gordon-t50-1.jpg', 'products/gordon-t50-2.jpg']),
+                'featured' => true,
+                'is_new' => true,
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'category_id' => 1,
+                'name' => 'Pininfarina Battista 2024',
+                'slug' => 'pininfarina-battista-2024',
+                'description' => 'Siêu xe điện của hãng thiết kế Ý',
+                'details' => 'Bốn motor điện, công suất 1900 mã lực, 0-100km/h trong 1.9 giây',
+                'price' => 2200000.00,
+                'sale_price' => null,
+                'quantity' => 4,
+                'image' => 'products/pininfarina-battista.jpg',
+                'images' => json_encode(['products/pininfarina-battista-1.jpg', 'products/pininfarina-battista-2.jpg']),
+                'featured' => true,
+                'is_new' => true,
+                'on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now
             ]
         ];
-        
-        $this->createProducts($products, $categoryId);
-    }
-    
-    private function createProducts($products, $categoryId)
-    {
+
         foreach ($products as $product) {
-            Product::create([
-                'category_id' => $categoryId,
-                'name' => $product['name'],
-                'slug' => Str::slug($product['name']),
-                'description' => $product['description'],
-                'details' => $product['details'],
-                'price' => $product['price'],
-                'sale_price' => $product['sale_price'],
-                'quantity' => $product['quantity'],
-                'image' => $product['image'],
-                'featured' => $product['featured'],
-                'is_new' => $product['is_new'],
-                'on_sale' => $product['on_sale']
-            ]);
+            Product::create($product);
         }
     }
 }
