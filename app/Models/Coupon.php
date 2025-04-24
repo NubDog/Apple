@@ -73,4 +73,25 @@ class Coupon extends Model
         
         return true;
     }
+    
+    /**
+     * Calculate discount amount based on coupon type and value
+     *
+     * @param float $amount The cart amount to apply discount to
+     * @return float
+     */
+    public function calculateDiscount($amount)
+    {
+        // If coupon is fixed amount
+        if ($this->type === 'fixed') {
+            return min($this->value, $amount);
+        }
+        
+        // If coupon is percentage
+        if ($this->type === 'percent') {
+            return ($amount * $this->value) / 100;
+        }
+        
+        return 0;
+    }
 } 

@@ -4,6 +4,9 @@
 <div class="container py-5 animate__animated animate__fadeIn">
     <div class="row justify-content-center">
         <div class="col-lg-10">
+            <!-- Alerts -->
+            @include('components.alert')
+            
             <!-- Page Header -->
             <div class="page-header d-flex align-items-center mb-4">
                 <div class="icon-circle bg-primary text-white me-3 animate__animated animate__bounceIn">
@@ -22,6 +25,7 @@
                 <div class="card-body">
                     <h5 class="card-title mb-4">
                         <i class="fas fa-tasks me-2"></i>Trạng thái đơn hàng
+                        <span class="current-status-badge">Hiện tại: <strong>{{ $order->status }}</strong></span>
                     </h5>
                     
                     <div class="order-timeline">
@@ -33,17 +37,19 @@
                             @endphp
                             
                             @foreach($statuses as $index => $status)
-                                <div class="status-step {{ $index <= $currentStatusIndex ? 'completed' : '' }}">
-                                    <div class="status-icon">
-                                        @if($index <= $currentStatusIndex)
+                                <div class="status-step {{ $index <= $currentStatusIndex ? 'completed' : '' }} {{ $index == $currentStatusIndex ? 'current' : '' }}">
+                                    <div class="status-icon {{ $index == $currentStatusIndex ? 'pulse' : '' }}">
+                                        @if($index < $currentStatusIndex)
                                             <i class="fas fa-check"></i>
+                                        @elseif($index == $currentStatusIndex)
+                                            <i class="fas fa-clock"></i>
                                         @else
                                             <i class="fas fa-circle"></i>
                                         @endif
                                     </div>
                                     <div class="status-label">{{ $status }}</div>
                                     @if($index < count($statuses) - 1)
-                                        <div class="status-line {{ $index < $currentStatusIndex ? 'completed' : '' }}"></div>
+                                        <div class="status-line {{ $index < $currentStatusIndex ? 'completed' : '' }} {{ $index == $currentStatusIndex ? 'current-line' : '' }}"></div>
                                     @endif
                                 </div>
                             @endforeach
@@ -185,8 +191,8 @@
                         @foreach($order->items as $item)
                             <div class="product-item animate__animated animate__fadeIn" style="animation-delay: {{ $loop->index * 0.1 }}s">
                                 <div class="product-item-image">
-                                    @if($item->product->image)
-                                        <img src="{{ $item->product->image }}" alt="{{ $item->product->name }}" class="img-fluid">
+                                    @if($item->product && $item->product->image)
+                                        <img src="{{ asset('storage/'.$item->product->image) }}" alt="{{ $item->product->name }}" class="img-fluid">
                                     @else
                                         <div class="no-image">
                                             <i class="fas fa-camera"></i>
@@ -194,7 +200,7 @@
                                     @endif
                                 </div>
                                 <div class="product-item-details">
-                                    <h5 class="product-item-name">{{ $item->product->name }}</h5>
+                                    <h5 class="product-item-name">{{ $item->product ? $item->product->name : 'Sản phẩm không tồn tại' }}</h5>
                                     <p class="product-item-price">{{ number_format($item->price, 0, ',', '.') }}đ</p>
                                 </div>
                                 <div class="product-item-quantity">
@@ -273,6 +279,68 @@
         --gray-300: #dee2e6;
         --border-radius: 1rem;
         --card-radius: 1.5rem;
+    }
+    
+    /* Current Status Badge */
+    .current-status-badge {
+        float: right;
+        background: linear-gradient(45deg, var(--primary), var(--info));
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        box-shadow: 0 3px 10px rgba(67, 97, 238, 0.2);
+        animation: fadeInRight 0.5s ease;
+    }
+    
+    /* Pulse Animation for Current Status */
+    .status-icon.pulse {
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(67, 97, 238, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+        }
+    }
+    
+    /* Current Status Styling */
+    .status-step.current .status-icon {
+        background: linear-gradient(45deg, var(--primary), var(--info));
+        color: white;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+        transform: scale(1.2);
+    }
+    
+    .status-step.current .status-label {
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 1rem;
+        transform: scale(1.05);
+    }
+    
+    .status-line.current-line {
+        background: linear-gradient(90deg, var(--primary), rgba(67, 97, 238, 0.3));
+        height: 4px;
+        animation: progressLine 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes progressLine {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
     }
     
     /* Page header */
